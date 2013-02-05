@@ -11,4 +11,5 @@ setup(name='pifaceio',
 	author_email='thomasmarkpreston@gmail.com',
 	license='GPLv3',
 	url='http://pi.cs.man.ac.uk/interface.htm',
+	py_modules=['pifaceio'],
 )
