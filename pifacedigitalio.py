@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """
-pfio.py
-Provides I/O methods for interfacing with the RaspberryPi interface (piface)
+pifacedigitalio.py
+Provides I/O methods for interfacing with PiFace Digital (on the RaspberryPi)
 
-piface has two ports (input/output) each with eight pins with several
-peripherals connected for interacting with the raspberry pi
+PiFace has two ports (input/output) each with eight pins with several
+peripherals connected for interacting with the Raspberry Pi
 """
 from time import sleep
 from datetime import datetime
@@ -14,7 +14,7 @@ import spi
 
 
 VERBOSE_MODE = False # toggle verbosity
-__pfio_print_PREFIX = "PFIO: " # prefix for pfio messages
+__pfdio_print_PREFIX = "PiFaceDigitalIO: " # prefix for pfdio messages
 
 # SPI operations
 WRITE_CMD = 0x40
@@ -168,7 +168,7 @@ def init():
     """Initialises the PiFace"""
     if VERBOSE_MODE:
          #print "PIFO: initialising SPI mode, reading data, reading length . . . \n"
-         __pfio_print("initialising SPI")
+         __pfdio_print("initialising SPI")
 
     global spi_handler
     try:
@@ -206,9 +206,9 @@ def deinit():
         spi_handler.close()
         spi_handler = None
 
-def __pfio_print(text):
-    """Prints a string with the pfio print prefix"""
-    print "%s %s" % (__pfio_print_PREFIX, text)
+def __pfdio_print(text):
+    """Prints a string with the pfdio print prefix"""
+    print "%s %s" % (__pfdio_print_PREFIX, text)
 
 def get_pin_bit_mask(pin_number):
     """Translates a pin number to pin bit mask. First pin is pin0."""
@@ -244,17 +244,17 @@ def byte_cat(items):
 def digital_write(pin_number, value):
     """Writes the value given to the pin specified"""
     if VERBOSE_MODE:
-        __pfio_print("digital write start")
+        __pfdio_print("digital write start")
 
     pin_bit_mask = get_pin_bit_mask(pin_number)
 
     if VERBOSE_MODE:
-        __pfio_print("pin bit mask: %s" % bin(pin_bit_mask))
+        __pfdio_print("pin bit mask: %s" % bin(pin_bit_mask))
 
     old_pin_values = read_output()
 
     if VERBOSE_MODE:
-        __pfio_print("old pin values: %s" % bin(old_pin_values))
+        __pfdio_print("old pin values: %s" % bin(old_pin_values))
 
     # generate the 
     if value:
@@ -263,12 +263,12 @@ def digital_write(pin_number, value):
         new_pin_values = old_pin_values & ~pin_bit_mask
 
     if VERBOSE_MODE:
-        __pfio_print("new pin values: %s" % bin(new_pin_values))
+        __pfdio_print("new pin values: %s" % bin(new_pin_values))
 
     write_output(new_pin_values)
 
     if VERBOSE_MODE:
-        __pfio_print("digital write end")
+        __pfdio_print("digital write end")
 
 def digital_read(pin_number):
     """Returns the value of the pin specified"""
@@ -286,17 +286,17 @@ def digital_read(pin_number):
 def digital_write_pullup(pin_number, value):
     """Writes the pullup value given to the pin specified"""
     if VERBOSE_MODE:
-        __pfio_print("digital write pullup start")
+        __pfdio_print("digital write pullup start")
 
     pin_bit_mask = get_pin_bit_mask(pin_number)
 
     if VERBOSE_MODE:
-        __pfio_print("pin bit mask: %s" % bin(pin_bit_mask))
+        __pfdio_print("pin bit mask: %s" % bin(pin_bit_mask))
 
     old_pin_values = read_pullup()
 
     if VERBOSE_MODE:
-        __pfio_print("old pin values: %s" % bin(old_pin_values))
+        __pfdio_print("old pin values: %s" % bin(old_pin_values))
 
     # generate the 
     if value:
@@ -305,12 +305,12 @@ def digital_write_pullup(pin_number, value):
         new_pin_values = old_pin_values & ~pin_bit_mask
 
     if VERBOSE_MODE:
-        __pfio_print("new pin values: %s" % bin(new_pin_values))
+        __pfdio_print("new pin values: %s" % bin(new_pin_values))
 
     write_pullups(new_pin_values)
 
     if VERBOSE_MODE:
-        __pfio_print("digital write end")
+        __pfdio_print("digital write end")
 
 """
 Some wrapper functions so the user doesn't have to deal with
@@ -365,7 +365,7 @@ def write(port, data):
 def send(spi_commands, custom_spi=False):
     """Sends a list of spi commands to the PiFace"""
     if spi_handler == None:
-        raise InitError("The pfio module has not yet been initialised. Before send(), call init().")
+        raise InitError("The pfdio module has not yet been initialised. Before send(), call init().")
     # a place to store the returned values for each transfer
     returned_values_list = list() 
 
@@ -373,7 +373,7 @@ def send(spi_commands, custom_spi=False):
     for cmd, port, data in spi_commands:
         datum_tx = byte_cat((cmd, port, data))
         if VERBOSE_MODE:
-            __pfio_print("transfering data: 0x%06x" % datum_tx)
+            __pfdio_print("transfering data: 0x%06x" % datum_tx)
 
         # transfer the data string
         returned_values = spi_handler.transfer("%06x" % datum_tx, 3)
@@ -382,7 +382,7 @@ def send(spi_commands, custom_spi=False):
         returned_values_list.append(returned_values)
 
         if VERBOSE_MODE:
-            __pfio_print("SPI module returned: 0x%06x" % datum_rx)
+            __pfdio_print("SPI module returned: 0x%06x" % datum_rx)
 
         # if we are visualising, add the data to the emulator visualiser
         global spi_visualiser_section
