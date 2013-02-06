@@ -1,4 +1,4 @@
-pifaceio
-========
+pifacedigitalio
+===============
 
-The PiFace input/output module.
+The PiFace Digital Input/Output module.
