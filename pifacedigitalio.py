@@ -17,8 +17,8 @@ VERBOSE_MODE = False # toggle verbosity
 __pfdio_print_PREFIX = "PiFaceDigitalIO: " # prefix for pfdio messages
 
 # SPI operations
-WRITE_CMD = 0x40
-READ_CMD  = 0x41
+WRITE_CMD = 0
+READ_CMD  = 1
 
 # Port configuration
 IODIRA = 0x00 # I/O direction A
@@ -241,7 +241,7 @@ def byte_cat(items):
         cauldron ^= items[i] << (i * 8)
     return cauldron
 
-def digital_write(pin_number, value):
+def digital_write(pin_number, value, board_num=0):
     """Writes the value given to the pin specified"""
     if VERBOSE_MODE:
         __pfdio_print("digital write start")
@@ -251,7 +251,7 @@ def digital_write(pin_number, value):
     if VERBOSE_MODE:
         __pfdio_print("pin bit mask: %s" % bin(pin_bit_mask))
 
-    old_pin_values = read_output()
+    old_pin_values = read_output(board_num)
 
     if VERBOSE_MODE:
         __pfdio_print("old pin values: %s" % bin(old_pin_values))
@@ -265,14 +265,14 @@ def digital_write(pin_number, value):
     if VERBOSE_MODE:
         __pfdio_print("new pin values: %s" % bin(new_pin_values))
 
-    write_output(new_pin_values)
+    write_output(new_pin_values, board_num)
 
     if VERBOSE_MODE:
         __pfdio_print("digital write end")
 
-def digital_read(pin_number):
+def digital_read(pin_number, board_num=0):
     """Returns the value of the pin specified"""
-    current_pin_values = read_input()
+    current_pin_values = read_input(board_num)
     pin_bit_mask = get_pin_bit_mask(pin_number)
 
     result = current_pin_values & pin_bit_mask
@@ -283,7 +283,7 @@ def digital_read(pin_number):
     else:
         return 0
 
-def digital_write_pullup(pin_number, value):
+def digital_write_pullup(pin_number, value, board_num=0):
     """Writes the pullup value given to the pin specified"""
     if VERBOSE_MODE:
         __pfdio_print("digital write pullup start")
@@ -293,7 +293,7 @@ def digital_write_pullup(pin_number, value):
     if VERBOSE_MODE:
         __pfdio_print("pin bit mask: %s" % bin(pin_bit_mask))
 
-    old_pin_values = read_pullup()
+    old_pin_values = read_pullup(board_num)
 
     if VERBOSE_MODE:
         __pfdio_print("old pin values: %s" % bin(old_pin_values))
@@ -307,38 +307,37 @@ def digital_write_pullup(pin_number, value):
     if VERBOSE_MODE:
         __pfdio_print("new pin values: %s" % bin(new_pin_values))
 
-    write_pullups(new_pin_values)
+    write_pullups(new_pin_values, board_num)
 
     if VERBOSE_MODE:
         __pfdio_print("digital write end")
 
 """
-Some wrapper functions so the user doesn't have to deal with
-ugly port variables
+Some wrapper functions so the user doesn't have to deal with ugly port variables
 """
-def read_output():
+def read_output(board_num=0):
     """Returns the values of the output pins"""
-    port, data = read(OUTPUT_PORT)
+    port, data = read(OUTPUT_PORT, board_num)
     return data
 
-def read_input():
+def read_input(board_num=0):
     """Returns the values of the input pins"""
-    port, data = read(INPUT_PORT)
+    port, data = read(INPUT_PORT, board_num)
     # inputs are active low, but the user doesn't need to know this...
     return data ^ 0xff 
 
-def read_pullups():
+def read_pullups(board_num=0):
     """Reads value of pullup registers"""
-    port, data = read(INPUT_PULLUPS)
+    port, data = read(INPUT_PULLUPS, board_num)
     return data
 
-def write_pullups(data):
-    port, data = write(INPUT_PULLUPS, data)
+def write_pullups(data, board_num=0):
+    port, data = write(INPUT_PULLUPS, data, board_num)
     return data
 
-def write_output(data):
+def write_output(data, board_num=0):
     """Writed the values of the output pins"""
-    port, data = write(OUTPUT_PORT, data)
+    port, data = write(OUTPUT_PORT, data, board_num)
     return data
 
 """
@@ -349,18 +348,25 @@ def write_input(data):
 """
 
 
-def read(port):
+def read(port, board_num=0):
     """Reads from the port specified"""
     # data byte is padded with 1's since it isn't going to be used
-    operation, port, data = send([(READ_CMD, port, 0xff)])[0] # send is expecting and returns a list
+    devopcode = __get_device_opcode(board_num, READ_CMD)
+    operation, port, data = send([(devopcode, port, 0xff)])[0] # send is expecting and returns a list
     return (port, data)
 
-def write(port, data):
+def write(port, data, board_num=0):
     """Writes data to the port specified"""
     #print "writing"
-    operation, port, data = send([(WRITE_CMD, port, data)])[0] # send is expecting and returns a list
+    devopcode = __get_device_opcode(board_num, WRITE_CMD)
+    operation, port, data = send([devopcode, port, data)])[0] # send is expecting and returns a list
     return (port, data)
 
+def __get_device_opcode(board_num, read_write_cmd):
+    """Returns the device opcode (as a byte)"""
+    board_addr_pattern = (1 << board_num) & 0xE # 1 -> 0b0000, 2 -> 0b0010
+    rw_cmd_pattern = read_write_cmd & 1 # make sure it's just 1 bit long
+    return 0x40 | board_addr_pattern | rw_cmd_pattern
 
 def send(spi_commands, custom_spi=False):
     """Sends a list of spi commands to the PiFace"""
