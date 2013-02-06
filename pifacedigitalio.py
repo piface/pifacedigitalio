@@ -359,7 +359,7 @@ def write(port, data, board_num=0):
     """Writes data to the port specified"""
     #print "writing"
     devopcode = __get_device_opcode(board_num, WRITE_CMD)
-    operation, port, data = send([devopcode, port, data)])[0] # send is expecting and returns a list
+    operation, port, data = send([(devopcode, port, data)])[0] # send is expecting and returns a list
     return (port, data)
 
 def __get_device_opcode(board_num, read_write_cmd):
