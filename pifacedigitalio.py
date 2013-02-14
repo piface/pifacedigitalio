@@ -60,8 +60,9 @@ class SwitchRangeError(Exception):
 # classes
 class Item(object):
     """An item connected to a pin on the RaspberryPi"""
-    def __init__(self, pin_number, handler=None):
-        self.pin_number = pin_number
+    def __init__(self, pin_num, board_num=0, handler=None):
+        self.pin_num = pin_num
+        self.board_number = board_num
         if handler:
             self.handler = handler
 
@@ -72,11 +73,11 @@ class Item(object):
 
 class InputItem(Item):
     """An input connected to a pin on the RaspberryPi"""
-    def __init__(self, pin_number, handler=None):
-        Item.__init__(self, pin_number, handler)
+    def __init__(self, pin_num, board_num=0, handler=None):
+        Item.__init__(self, pin_num, board_num, handler)
 
     def _get_value(self):
-        return self.handler.digital_read(self.pin_number)
+        return self.handler.digital_read(self.pin_num)
 
     def _set_value(self, data):
         raise InputDeviceError("You cannot set an input's values!")
@@ -85,16 +86,16 @@ class InputItem(Item):
 
 class OutputItem(Item):
     """An output connected to a pin on the RaspberryPi"""
-    def __init__(self, pin_number, handler=None):
+    def __init__(self, pin_num, board_num=0, handler=None):
         self.current = 0
-        Item.__init__(self, pin_number, handler)
+        Item.__init__(self, pin_num, board_num, handler)
 
     def _get_value(self):
         return self.current
 
     def _set_value(self, data):
         self.current = data
-        return self.handler.digital_write(self.pin_number, data)
+        return self.handler.digital_write(self.pin_num, self.board_num, data)
 
     value = property(_get_value, _set_value)
 
@@ -109,30 +110,30 @@ class OutputItem(Item):
 
 class LED(OutputItem):
     """An LED on the RaspberryPi"""
-    def __init__(self, led_number, handler=None):
+    def __init__(self, led_number, board_num=0, handler=None):
         if led_number < 0 or led_number > 7:
             raise LEDRangeError(
                     "Specified LED index (%d) out of range." % led_number)
         else:
-            OutputItem.__init__(self, led_number, handler)
+            OutputItem.__init__(self, led_number, board_num, handler)
 
 class Relay(OutputItem):
     """A relay on the RaspberryPi"""
-    def __init__(self, relay_number, handler=None):
+    def __init__(self, relay_number, board_num=0, handler=None):
         if relay_number < 0 or relay_number > 1:
             raise RelayRangeError(
                     "Specified relay index (%d) out of range." % relay_number)
         else:
-            OutputItem.__init__(self, relay_number, handler)
+            OutputItem.__init__(self, relay_number, board_num, handler)
 
 class Switch(InputItem):
     """A switch on the RaspberryPi"""
-    def __init__(self, switch_number, handler=None):
+    def __init__(self, switch_number, board_num=0, handler=None):
         if switch_number < 0 or switch_number > 3:
             raise SwitchRangeError(
                   "Specified switch index (%d) out of range." % switch_number)
         else:
-            InputItem.__init__(self, switch_number, handler)
+            InputItem.__init__(self, switch_number, board_num, handler)
 
 
 # functions
