@@ -16,11 +16,14 @@ Examples
     >>> p.digital_read(4)        # reads pin4 (on board0)
     >>> p.digital_read(2, 3)     # reads pin2 (on board3)
 
-    >>> led0 = p.LED(0)  # create an LED object
+    >>> led0 = p.LED(0)  # create an LED object (pin0, board0)
     >>> led0.turn_on()   # turn on the LED
     >>> led0.value = 1   # turn on the LED
 
-    >>> switch2 = p.Switch(2) # create a Switch object
+    >>> led3_2 = p.LED(3, 2)  # create an LED object (pin3, board2)
+    >>> led3_2.turn_on()      # turn on the LED
+
+    >>> switch2 = p.Switch(2) # create a Switch object (pin2, board0)
     >>> switch2.value         # is the switch pressed?
     0
     >>>
