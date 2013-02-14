@@ -62,7 +62,7 @@ class Item(object):
     """An item connected to a pin on the RaspberryPi"""
     def __init__(self, pin_num, board_num=0, handler=None):
         self.pin_num = pin_num
-        self.board_number = board_num
+        self.board_num = board_num
         if handler:
             self.handler = handler
 
@@ -172,7 +172,8 @@ def init(init_ports=True):
         #    raise InitError("The PiFace board could not be detected")
 
         # initialise all outputs to 0
-        write_output(0)
+        for board_index in range(8):
+            write_output(0, board_index)
 
 def deinit():
     """Deinitialises the PiFace"""
