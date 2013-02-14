@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 pifacedigitalio.py
-Provides I/O methods for interfacing with PiFace Digital (on the RaspberryPi)
+Provides I/O methods for interfacing with PiFace Digital (on the Raspberry Pi)
 
 PiFace has two ports (input/output) each with eight pins with several
 peripherals connected for interacting with the Raspberry Pi
@@ -32,26 +32,6 @@ OUTPUT_PORT = GPIOA
 INPUT_PORT  = GPIOB
 INPUT_PULLUPS = GPPUB
 
-# piface peripheral pin numbers
-# each peripheral is connected to an I/O pin
-# some pins are connected to many peripherals
-# outputs
-PH_PIN_LED_1 = 1
-PH_PIN_LED_2 = 2
-PH_PIN_LED_3 = 3
-PH_PIN_LED_4 = 4
-PH_PIN_LED_5 = 5
-PH_PIN_LED_6 = 6
-PH_PIN_LED_7 = 7
-PH_PIN_LED_8 = 8
-PH_PIN_RELAY_1 = 1
-PH_PIN_RELAY_2 = 2
-# inputs
-PH_PIN_SWITCH_1 = 1
-PH_PIN_SWITCH_2 = 2
-PH_PIN_SWITCH_3 = 3
-PH_PIN_SWITCH_4 = 4
-
 spi_handler = None
 
 spi_visualiser_section = None # for the emulator spi visualiser
@@ -67,12 +47,23 @@ class InputDeviceError(Exception):
 class PinRangeError(Exception):
     pass
 
+class LEDRangeError(Exception):
+    pass
+
+class RelayRangeError(Exception):
+    pass
+
+class SwitchRangeError(Exception):
+    pass
+
 
 # classes
 class Item(object):
     """An item connected to a pin on the RaspberryPi"""
     def __init__(self, pin_number, handler=None):
         self.pin_number = pin_number
+        if handler:
+            self.handler = handler
 
     def _get_handler(self):
         return sys.modules[__name__]
@@ -81,8 +72,11 @@ class Item(object):
 
 class InputItem(Item):
     """An input connected to a pin on the RaspberryPi"""
+    def __init__(self, pin_number, handler=None):
+        Item.__init__(self, pin_number, handler)
+
     def _get_value(self):
-        return self._handler().digital_read(self.pin_number)
+        return self.handler.digital_read(self.pin_number)
 
     def _set_value(self, data):
         raise InputDeviceError("You cannot set an input's values!")
@@ -116,58 +110,38 @@ class OutputItem(Item):
 class LED(OutputItem):
     """An LED on the RaspberryPi"""
     def __init__(self, led_number, handler=None):
-        if led_number == 1:
-            pin_number = PH_PIN_LED_1
-        elif led_number == 2:
-            pin_number = PH_PIN_LED_2
-        elif led_number == 3:
-            pin_number = PH_PIN_LED_3
-        elif led_number == 4:
-            pin_number = PH_PIN_LED_4
-        elif led_number == 5:
-            pin_number = PH_PIN_LED_5
-        elif led_number == 6:
-            pin_number = PH_PIN_LED_6
-        elif led_number == 7:
-            pin_number = PH_PIN_LED_7
+        if led_number < 0 or led_number > 7:
+            raise LEDRangeError(
+                    "Specified LED index (%d) out of range." % led_number)
         else:
-            pin_number = PH_PIN_LED_8
-
-        OutputItem.__init__(self, pin_number, handler)
+            OutputItem.__init__(self, led_number, handler)
 
 class Relay(OutputItem):
     """A relay on the RaspberryPi"""
     def __init__(self, relay_number, handler=None):
-        if relay_number == 1:
-            pin_number = PH_PIN_RELAY_1
+        if relay_number < 0 or relay_number > 1:
+            raise RelayRangeError(
+                    "Specified relay index (%d) out of range." % relay_number)
         else:
-            pin_number = PH_PIN_RELAY_2
-
-        OutputItem.__init__(self, pin_number, handler)
+            OutputItem.__init__(self, relay_number, handler)
 
 class Switch(InputItem):
     """A switch on the RaspberryPi"""
     def __init__(self, switch_number, handler=None):
-        if switch_number == 1:
-            switch_number = PH_PIN_SWITCH_1
-        elif switch_number == 2:
-            switch_number = PH_PIN_SWITCH_2
-        elif switch_number == 3:
-            switch_number = PH_PIN_SWITCH_3
+        if switch_number < 0 or switch_number > 3:
+            raise SwitchRangeError(
+                  "Specified switch index (%d) out of range." % switch_number)
         else:
-            switch_number = PH_PIN_SWITCH_4
-
-        InputItem.__init__(self, switch_number, handler)
+            InputItem.__init__(self, switch_number, handler)
 
 
 # functions
 def get_spi_handler():
     return spi.SPI(0,0) # spi.SPI(X,Y) is /dev/spidevX.Y
 
-def init():
+def init(init_ports=True):
     """Initialises the PiFace"""
     if VERBOSE_MODE:
-         #print "PIFO: initialising SPI mode, reading data, reading length . . . \n"
          __pfdio_print("initialising SPI")
 
     global spi_handler
@@ -176,28 +150,28 @@ def init():
     except spi.error as error:
         raise InitError(error)
 
-    # set up the ports
-    write(IOCON,  8)    # enable hardware addressing
-    write(GPIOA,  0x00) # set port A on
-    write(IODIRA, 0)    # set port A as outputs
-    write(IODIRB, 0xFF) # set port B as inputs
-    #write(GPIOA,  0xFF) # set port A on
-    #write(GPIOB,  0xFF) # set port B on
-    #write(GPPUA,  0xFF) # set port A pullups on
-    write(GPPUB,  0xFF) # set port B pullups on
+    if init_ports:
+        # set up the ports
+        write(IOCON,  8)    # enable hardware addressing
+        write(GPIOA,  0x00) # set port A on
+        write(IODIRA, 0)    # set port A as outputs
+        write(IODIRB, 0xFF) # set port B as inputs
+        #write(GPIOA,  0xFF) # set port A on
+        #write(GPIOB,  0xFF) # set port B on
+        #write(GPPUA,  0xFF) # set port A pullups on
+        write(GPPUB,  0xFF) # set port B pullups on
 
-    # check the outputs are being set (primitive board detection)
-#AR removed this test as it lead to flashing of outputs which 
-# could surprise users!
+        # check the outputs are being set (primitive board detection)
+        # AR removed this test as it lead to flashing of outputs which 
+        # could surprise users!
+        #test_value = 0b10101010
+        #write_output(test_value)
+        #if read_output() != test_value:
+        #    spi_handler = None
+        #    raise InitError("The PiFace board could not be detected")
 
-#    test_value = 0b10101010
-#    write_output(test_value)
-#    if read_output() != test_value:
-#        spi_handler = None
-#        raise InitError("The PiFace board could not be detected")
-
-    # initialise all outputs to 0
-    write_output(0)
+        # initialise all outputs to 0
+        write_output(0)
 
 def deinit():
     """Deinitialises the PiFace"""
@@ -313,7 +287,8 @@ def digital_write_pullup(pin_number, value, board_num=0):
         __pfdio_print("digital write end")
 
 """
-Some wrapper functions so the user doesn't have to deal with ugly port variables
+Some wrapper functions so the user doesn't have to deal with
+ugly port variables
 """
 def read_output(board_num=0):
     """Returns the values of the output pins"""
@@ -347,6 +322,11 @@ def write_input(data):
     return data
 """
 
+def __get_device_opcode(board_num, read_write_cmd):
+    """Returns the device opcode (as a byte)"""
+    board_addr_pattern = (1 << board_num) & 0xE # 1 -> 0b0000, 2 -> 0b0010
+    rw_cmd_pattern = read_write_cmd & 1 # make sure it's just 1 bit long
+    return 0x40 | board_addr_pattern | rw_cmd_pattern
 
 def read(port, board_num=0):
     """Reads from the port specified"""
@@ -357,16 +337,9 @@ def read(port, board_num=0):
 
 def write(port, data, board_num=0):
     """Writes data to the port specified"""
-    #print "writing"
     devopcode = __get_device_opcode(board_num, WRITE_CMD)
     operation, port, data = send([(devopcode, port, data)])[0] # send is expecting and returns a list
     return (port, data)
-
-def __get_device_opcode(board_num, read_write_cmd):
-    """Returns the device opcode (as a byte)"""
-    board_addr_pattern = (1 << board_num) & 0xE # 1 -> 0b0000, 2 -> 0b0010
-    rw_cmd_pattern = read_write_cmd & 1 # make sure it's just 1 bit long
-    return 0x40 | board_addr_pattern | rw_cmd_pattern
 
 def send(spi_commands, custom_spi=False):
     """Sends a list of spi commands to the PiFace"""
