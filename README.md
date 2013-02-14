@@ -3,6 +3,8 @@ pifacedigitalio
 
 The PiFace Digital Input/Output module.
 
+*The PiFace Digital IO module uses Python 2 and is incompatible with Python 3*
+
 Depends on [spipy](https://github.com/tompreston/spipy).
 
 Examples
