@@ -324,7 +324,7 @@ def write_input(data):
 
 def __get_device_opcode(board_num, read_write_cmd):
     """Returns the device opcode (as a byte)"""
-    board_addr_pattern = (1 << board_num) & 0xE # 1 -> 0b0000, 2 -> 0b0010
+    board_addr_pattern = (board_num << 1) & 0xE # 1 -> 0b0010, 3 -> 0b0110
     rw_cmd_pattern = read_write_cmd & 1 # make sure it's just 1 bit long
     return 0x40 | board_addr_pattern | rw_cmd_pattern
 
