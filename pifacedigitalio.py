@@ -77,7 +77,7 @@ class InputItem(Item):
         Item.__init__(self, pin_num, board_num, handler)
 
     def _get_value(self):
-        return self.handler.digital_read(self.pin_num)
+        return self.handler.digital_read(self.pin_num, self.board_num)
 
     def _set_value(self, data):
         raise InputDeviceError("You cannot set an input's values!")
@@ -95,7 +95,7 @@ class OutputItem(Item):
 
     def _set_value(self, data):
         self.current = data
-        return self.handler.digital_write(self.pin_num, self.board_num, data)
+        return self.handler.digital_write(self.pin_num, data, self.board_num)
 
     value = property(_get_value, _set_value)
 
