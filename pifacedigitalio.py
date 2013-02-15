@@ -181,27 +181,27 @@ def init(init_ports=True):
         raise InitError(error)
 
     if init_ports:
-        # set up the ports
-        write(IOCON,  8)    # enable hardware addressing
-        write(GPIOA,  0x00) # set port A on
-        write(IODIRA, 0)    # set port A as outputs
-        write(IODIRB, 0xFF) # set port B as inputs
-        #write(GPIOA,  0xFF) # set port A on
-        #write(GPIOB,  0xFF) # set port B on
-        #write(GPPUA,  0xFF) # set port A pullups on
-        write(GPPUB,  0xFF) # set port B pullups on
-
-        # check the outputs are being set (primitive board detection)
-        # AR removed this test as it lead to flashing of outputs which 
-        # could surprise users!
-        #test_value = 0b10101010
-        #write_output(test_value)
-        #if read_output() != test_value:
-        #    spi_handler = None
-        #    raise InitError("The PiFace board could not be detected")
-
-        # initialise all outputs to 0
         for board_index in range(8):
+            # set up the ports
+            write(IOCON,  8, board_index)    # enable hardware addressing
+            write(GPIOA,  0, board_index)    # set port A on
+            write(IODIRA, 0, board_index)    # set port A as outputs
+            write(IODIRB, 0xFF, board_index) # set port B as inputs
+            #write(GPIOA,  0xFF, board_index) # set port A on
+            #write(GPIOB,  0xFF, board_index) # set port B on
+            #write(GPPUA,  0xFF, board_index) # set port A pullups on
+            write(GPPUB,  0xFF, board_index) # set port B pullups on
+
+            # check the outputs are being set (primitive board detection)
+            # AR removed this test as it lead to flashing of outputs which 
+            # could surprise users!
+            #test_value = 0b10101010
+            #write_output(test_value)
+            #if read_output() != test_value:
+            #    spi_handler = None
+            #    raise InitError("The PiFace board could not be detected")
+
+            # initialise outputs to 0
             write_output(0, board_index)
 
 def deinit():
