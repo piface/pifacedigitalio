@@ -2,7 +2,7 @@
 """
 pifacedigitalio.py
 Provides I/O methods for interfacing with PiFace Digital (on the Raspberry Pi)
-Copyright (C) 2013  Thomas Preston
+Copyright (C) 2013 Thomas Preston <thomasmarkpreston@gmail.com>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
