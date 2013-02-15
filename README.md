@@ -7,6 +7,10 @@ The PiFace Digital Input/Output module.
 
 Depends on [spipy](https://github.com/tompreston/spipy).
 
+Installation
+============
+    $ sudo python setup.py install
+
 Examples
 =======
     >>> import pifacedigitalio as p
