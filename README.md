@@ -17,6 +17,11 @@ Examples
     >>> p.digital_write(5, 1, 2) # writes pin5 on board2 high
     >>> p.digital_read(4)        # reads pin4 (on board0)
     >>> p.digital_read(2, 3)     # reads pin2 (on board3)
+    
+    >>> pfd = p.PiFaceDigital(1) # creates a PiFace Digtal object (board1)
+    >>> pfd.led(1).turn_on()     # turn on the second LED
+    >>> pfd.switch(3).value      # check the status of switch3
+    >>> pfd.relay(0).value = 1   # turn on the first relay
 
     >>> led0 = p.LED(0)  # create an LED object (pin0, board0)
     >>> led0.turn_on()   # turn on the LED
