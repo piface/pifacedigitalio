@@ -71,7 +71,7 @@ class SwitchRangeError(Exception):
 
 # classes
 class Item(object):
-    """An item connected to a pin on the RaspberryPi"""
+    """An item connected to a pin on PiFace Digital"""
     def __init__(self, pin_num, board_num=0, handler=None):
         self.pin_num = pin_num
         self.board_num = board_num
@@ -84,7 +84,7 @@ class Item(object):
     handler = property(_get_handler, None)
 
 class InputItem(Item):
-    """An input connected to a pin on the RaspberryPi"""
+    """An input connected to a pin on PiFace Digital"""
     def __init__(self, pin_num, board_num=0, handler=None):
         Item.__init__(self, pin_num, board_num, handler)
 
@@ -97,7 +97,7 @@ class InputItem(Item):
     value = property(_get_value, _set_value)
 
 class OutputItem(Item):
-    """An output connected to a pin on the RaspberryPi"""
+    """An output connected to a pin on PiFace Digital"""
     def __init__(self, pin_num, board_num=0, handler=None):
         self.current = 0
         Item.__init__(self, pin_num, board_num, handler)
@@ -121,7 +121,7 @@ class OutputItem(Item):
         self.value = not self.value
 
 class LED(OutputItem):
-    """An LED on the RaspberryPi"""
+    """An LED on PiFace Digital"""
     def __init__(self, led_number, board_num=0, handler=None):
         if led_number < 0 or led_number > 7:
             raise LEDRangeError(
@@ -130,7 +130,7 @@ class LED(OutputItem):
             OutputItem.__init__(self, led_number, board_num, handler)
 
 class Relay(OutputItem):
-    """A relay on the RaspberryPi"""
+    """A relay on PiFace Digital"""
     def __init__(self, relay_number, board_num=0, handler=None):
         if relay_number < 0 or relay_number > 1:
             raise RelayRangeError(
@@ -139,13 +139,30 @@ class Relay(OutputItem):
             OutputItem.__init__(self, relay_number, board_num, handler)
 
 class Switch(InputItem):
-    """A switch on the RaspberryPi"""
+    """A switch on PiFace Digital"""
     def __init__(self, switch_number, board_num=0, handler=None):
         if switch_number < 0 or switch_number > 3:
             raise SwitchRangeError(
                   "Specified switch index (%d) out of range." % switch_number)
         else:
             InputItem.__init__(self, switch_number, board_num, handler)
+
+class PiFaceDigital(object):
+    """A single PiFace Digital board"""
+    def __init__(self, board_num=0):
+        self.board_num = board_num
+
+        self.led = list()
+        for i in range(8):
+            self.led.append(LED(i, board_num))
+
+        self.relay = list()
+        for i in range(2):
+            self.relay.append(Relay(i, board_num))
+
+        self.switch = list()
+        for i in range(4):
+            self.switch.append(Switch(i, board_num))
 
 
 # functions
