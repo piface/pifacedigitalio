@@ -167,7 +167,7 @@ class PiFaceDigital(object):
 
 # functions
 def get_spi_handler():
-    return spi.SPI(0,0) # spi.SPI(X,Y) is /dev/spidevX.Y
+    return spipy.SPI(0,0) # spipy.SPI(X,Y) is /dev/spidevX.Y
 
 def init(init_ports=True):
     """Initialises the PiFace"""
@@ -177,7 +177,7 @@ def init(init_ports=True):
     global spi_handler
     try:
         spi_handler = get_spi_handler()
-    except spi.error as error:
+    except spipy.error as error:
         raise InitError(error)
 
     if init_ports:
