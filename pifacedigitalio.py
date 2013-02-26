@@ -22,7 +22,7 @@ from time import sleep
 from datetime import datetime
 
 import sys
-import spi
+import spipy
 
 
 VERBOSE_MODE = False # toggle verbosity
@@ -167,7 +167,7 @@ class PiFaceDigital(object):
 
 # functions
 def get_spi_handler():
-    return spi.SPI(0,0) # spi.SPI(X,Y) is /dev/spidevX.Y
+    return spipy.SPI(0,0) # spipy.SPI(X,Y) is /dev/spidevX.Y
 
 def init(init_ports=True):
     """Initialises the PiFace"""
@@ -177,7 +177,7 @@ def init(init_ports=True):
     global spi_handler
     try:
         spi_handler = get_spi_handler()
-    except spi.error as error:
+    except spipy.error as error:
         raise InitError(error)
 
     if init_ports:
@@ -233,18 +233,6 @@ def get_pin_number(bit_pattern):
             break
     
     return pin_number
-
-def byte_cat(items):
-    """
-    Returns a value comprised of the concatenation of the given hex values
-    Example: (0x41, 0x16, 0x01) -> 0x411601
-    """
-    items = list(items)
-    items.reverse()
-    cauldron = 0
-    for i in range(len(items)):
-        cauldron ^= items[i] << (i * 8)
-    return cauldron
 
 def digital_write(pin_number, value, board_num=0):
     """Writes the value given to the pin specified"""
@@ -375,55 +363,29 @@ def __get_device_opcode(board_num, read_write_cmd):
 
 def read(port, board_num=0):
     """Reads from the port specified"""
-    # data byte is padded with 1's since it isn't going to be used
     devopcode = __get_device_opcode(board_num, READ_CMD)
-    operation, port, data = send([(devopcode, port, 0xff)])[0] # send is expecting and returns a list
+    operation, port, data = send(devopcode, port, 0) # data byte is not used
     return (port, data)
 
 def write(port, data, board_num=0):
     """Writes data to the port specified"""
     devopcode = __get_device_opcode(board_num, WRITE_CMD)
-    operation, port, data = send([(devopcode, port, data)])[0] # send is expecting and returns a list
+    operation, port, data = send(devopcode, port, data)
     return (port, data)
 
-def send(spi_commands, custom_spi=False):
-    """Sends a list of spi commands to the PiFace"""
+def send(devopcode, port, data):
+    """Sends three bytes via the SPI bus"""
     if spi_handler == None:
         raise InitError("The pfdio module has not yet been initialised. Before send(), call init().")
-    # a place to store the returned values for each transfer
-    returned_values_list = list() 
-
-    # datum is an array of three bytes
-    for cmd, port, data in spi_commands:
-        datum_tx = byte_cat((cmd, port, data))
-        if VERBOSE_MODE:
-            __pfdio_print("transfering data: 0x%06x" % datum_tx)
-
-        # transfer the data string
-        returned_values = spi_handler.transfer("%06x" % datum_tx, 3)
-        datum_rx = byte_cat(returned_values)
-
-        returned_values_list.append(returned_values)
-
-        if VERBOSE_MODE:
-            __pfdio_print("SPI module returned: 0x%06x" % datum_rx)
-
-        # if we are visualising, add the data to the emulator visualiser
-        global spi_visualiser_section
-        if spi_visualiser_section:
-            time = datetime.now()
-            timestr = "%d:%d:%d.%d" % (time.hour, time.minute, time.second, time.microsecond)
-            datum_tx = byte_cat((cmd, port, data)) # recalculate since the transfer changes it
-            #print "writing to spi_liststore: %s" % str((timestr, hex(datum_tx), hex(datum_rx)))
-            spi_visualiser_section.add_spi_log(timestr, datum_tx, datum_rx, custom_spi)
-
-    return returned_values_list
+    else:
+        return spi_handler.transfer((devopcode, port, data))
 
 
 def test_method():
-    digital_write(1,1) # write pin 1 high
+    # write pin 1 high/low
+    digital_write(0,1)
     sleep(2)
-    digital_write(1,0) # write pin 1 low
+    digital_write(0,0)
 
 if __name__ == "__main__":
     init()
