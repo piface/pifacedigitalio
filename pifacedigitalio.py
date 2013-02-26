@@ -40,9 +40,9 @@ GPIOA  = 0x12 # port A
 GPIOB  = 0x13 # port B
 GPPUA  = 0x0C # port A pullups
 GPPUB  = 0x0D # port B pullups
-OUTPUT_PORT = GPIOA
-INPUT_PORT  = GPIOB
-INPUT_PULLUPS = GPPUB
+OUTPUT_PORT  = GPIOA
+INPUT_PORT   = GPIOB
+INPUT_PULLUP = GPPUB
 
 spi_handler = None
 
@@ -282,7 +282,7 @@ def digital_read(pin_number, board_num=0):
 
     result = current_pin_values & pin_bit_mask
 
-    # is this correct? -thomas preston
+    # works with true/false
     if result:
         return 1
     else:
@@ -312,10 +312,23 @@ def digital_write_pullup(pin_number, value, board_num=0):
     if VERBOSE_MODE:
         __pfdio_print("new pin values: %s" % bin(new_pin_values))
 
-    write_pullups(new_pin_values, board_num)
+    write_pullup(new_pin_values, board_num)
 
     if VERBOSE_MODE:
         __pfdio_print("digital write end")
+
+def digital_read_pullup(pin_number, board_num=0):
+    """Returns the value of the pullup pin specified"""
+    current_pin_values = read_pullup(board_num)
+    pin_bit_mask = get_pin_bit_mask(pin_number)
+
+    result = current_pin_values & pin_bit_mask
+
+    # works with true/false
+    if result:
+        return 1
+    else:
+        return 0
 
 """
 Some wrapper functions so the user doesn't have to deal with
@@ -332,13 +345,14 @@ def read_input(board_num=0):
     # inputs are active low, but the user doesn't need to know this...
     return data ^ 0xff 
 
-def read_pullups(board_num=0):
+def read_pullup(board_num=0):
     """Reads value of pullup registers"""
-    port, data = read(INPUT_PULLUPS, board_num)
+    port, data = read(INPUT_PULLUP, board_num)
     return data
 
-def write_pullups(data, board_num=0):
-    port, data = write(INPUT_PULLUPS, data, board_num)
+def write_pullup(data, board_num=0):
+    """Writes value to pullup registers"""
+    port, data = write(INPUT_PULLUP, data, board_num)
     return data
 
 def write_output(data, board_num=0):
