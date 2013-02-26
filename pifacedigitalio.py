@@ -364,7 +364,7 @@ def send(devopcode, port, data):
     if spi_handler == None:
         raise InitError("The pfdio module has not yet been initialised. Before send(), call init().")
     else:
-        return spi_handler.transfer(devopcode, port, data)
+        return spi_handler.transfer((devopcode, port, data))
 
 
 def test_method():
