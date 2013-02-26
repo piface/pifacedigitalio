@@ -234,18 +234,6 @@ def get_pin_number(bit_pattern):
     
     return pin_number
 
-def byte_cat(items):
-    """
-    Returns a value comprised of the concatenation of the given hex values
-    Example: (0x41, 0x16, 0x01) -> 0x411601
-    """
-    items = list(items)
-    items.reverse()
-    cauldron = 0
-    for i in range(len(items)):
-        cauldron ^= items[i] << (i * 8)
-    return cauldron
-
 def digital_write(pin_number, value, board_num=0):
     """Writes the value given to the pin specified"""
     if VERBOSE_MODE:
