@@ -18,17 +18,22 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 """
+import sys
+import ctypes
+import posix
+from fcntl import ioctl
+from asm_generic_ioctl import _IOW
 from time import sleep
 from datetime import datetime
 
-import sys
-import spipy
+
+# spi stuff requires Python 3
+assert sys.version_info.major >= 3, __name__ + " is only supported on Python 3."
 
 
 VERBOSE_MODE = False # toggle verbosity
 __pfdio_print_PREFIX = "PiFaceDigitalIO: " # prefix for pfdio messages
 
-# SPI operations
 WRITE_CMD = 0
 READ_CMD  = 1
 
@@ -44,9 +49,10 @@ OUTPUT_PORT  = GPIOA
 INPUT_PORT   = GPIOB
 INPUT_PULLUP = GPPUB
 
-spi_handler = None
+SPI_IOC_MAGIC = 107 # yeah :/
 
-spi_visualiser_section = None # for the emulator spi visualiser
+
+spidev_fd = None
 
 
 # custom exceptions
@@ -78,23 +84,22 @@ class Item(object):
         if handler:
             self.handler = handler
 
-    def _get_handler(self):
+    @property
+    def handler(self):
         return sys.modules[__name__]
-
-    handler = property(_get_handler, None)
 
 class InputItem(Item):
     """An input connected to a pin on PiFace Digital"""
     def __init__(self, pin_num, board_num=0, handler=None):
         Item.__init__(self, pin_num, board_num, handler)
 
-    def _get_value(self):
+    @property
+    def value(self):
         return self.handler.digital_read(self.pin_num, self.board_num)
 
-    def _set_value(self, data):
+    @value.setter
+    def value(self, data):
         raise InputDeviceError("You cannot set an input's values!")
-
-    value = property(_get_value, _set_value)
 
 class OutputItem(Item):
     """An output connected to a pin on PiFace Digital"""
@@ -102,14 +107,14 @@ class OutputItem(Item):
         self.current = 0
         Item.__init__(self, pin_num, board_num, handler)
 
-    def _get_value(self):
+    @property
+    def value(self):
         return self.current
 
-    def _set_value(self, data):
+    @value.setter
+    def value(self, data):
         self.current = data
         return self.handler.digital_write(self.pin_num, data, self.board_num)
-
-    value = property(_get_value, _set_value)
 
     def turn_on(self):
         self.value = 1
@@ -164,21 +169,27 @@ class PiFaceDigital(object):
         for i in range(4):
             self.switch.append(Switch(i, board_num))
 
+class _spi_ioc_transfer(ctypes.Structure):                                      
+    """SPI ioc transfer structure (from linux/spi/spidev.h)"""
+    _fields_ = [
+        ("tx_buf", ctypes.c_uint64),
+        ("rx_buf", ctypes.c_uint64),
+        ("len", ctypes.c_uint32),
+        ("speed_hz", ctypes.c_uint32),
+        ("delay_usecs", ctypes.c_uint16),
+        ("bits_per_word", ctypes.c_uint8),
+        ("cs_change", ctypes.c_uint8),
+        ("pad", ctypes.c_uint32)]
+
 
 # functions
-def get_spi_handler():
-    return spipy.SPI(0,0) # spipy.SPI(X,Y) is /dev/spidevX.Y
-
 def init(init_ports=True):
-    """Initialises the PiFace"""
+    """Initialises the PiFace Digital board"""
     if VERBOSE_MODE:
          __pfdio_print("initialising SPI")
 
-    global spi_handler
-    try:
-        spi_handler = get_spi_handler()
-    except spipy.error as error:
-        raise InitError(error)
+    global spidev_fd
+    spidev_fd = posix.open('/dev/spidev0.0', posix.O_RDWR)
 
     if init_ports:
         for board_index in range(8):
@@ -205,15 +216,13 @@ def init(init_ports=True):
             write_output(0, board_index)
 
 def deinit():
-    """Deinitialises the PiFace"""
-    global spi_handler
-    if spi_handler:
-        spi_handler.close()
-        spi_handler = None
+    """Closes the spidev file descriptor"""
+    global spidev_fd
+    posix.close(spidev_fd)
 
 def __pfdio_print(text):
     """Prints a string with the pfdio print prefix"""
-    print "%s %s" % (__pfdio_print_PREFIX, text)
+    print("%s %s" % (__pfdio_print_PREFIX, text))
 
 def get_pin_bit_mask(pin_number):
     """Translates a pin number to pin bit mask. First pin is pin0."""
@@ -364,30 +373,33 @@ def __get_device_opcode(board_num, read_write_cmd):
 def read(port, board_num=0):
     """Reads from the port specified"""
     devopcode = __get_device_opcode(board_num, READ_CMD)
-    operation, port, data = send(devopcode, port, 0) # data byte is not used
+    operation, port, data = spisend((devopcode, port, 0)) # data byte is not used
     return (port, data)
 
 def write(port, data, board_num=0):
     """Writes data to the port specified"""
     devopcode = __get_device_opcode(board_num, WRITE_CMD)
-    operation, port, data = send(devopcode, port, data)
+    operation, port, data = spisend((devopcode, port, data))
     return (port, data)
 
-def send(devopcode, port, data):
-    """Sends three bytes via the SPI bus"""
-    if spi_handler == None:
-        raise InitError("The pfdio module has not yet been initialised. Before send(), call init().")
-    else:
-        return spi_handler.transfer((devopcode, port, data))
+def spisend(bytes_to_send):
+    """Sends bytes via the SPI bus"""
+    global spidev_fd
+    if spidev_fd == None:
+        raise InitError("Before spisend(), call init().")
 
+    # make some buffer space to store reading/writing
+    write_bytes = bytes(bytes_to_send)
+    wbuffer = ctypes.create_string_buffer(write_bytes, len(write_bytes))
+    rbuffer = ctypes.create_string_buffer(len(bytes_to_send))
 
-def test_method():
-    # write pin 1 high/low
-    digital_write(0,1)
-    sleep(2)
-    digital_write(0,0)
+    # create the spi transfer struct
+    transfer = _spi_ioc_transfer(
+        tx_buf=ctypes.addressof(wbuffer),
+        rx_buf=ctypes.addressof(rbuffer),
+        len=ctypes.sizeof(wbuffer))
 
-if __name__ == "__main__":
-    init()
-    test_method()
-    deinit()
+    # send the spi command (with a little help from asm-generic
+    iomsg = _IOW(SPI_IOC_MAGIC, 0, ctypes.c_char*ctypes.sizeof(transfer))
+    ioctl(spidev_fd, iomsg, ctypes.addressof(transfer))
+    return ctypes.string_at(rbuffer, ctypes.sizeof(rbuffer))

@@ -3,9 +3,7 @@ pifacedigitalio
 
 The PiFace Digital Input/Output module.
 
-*The PiFace Digital IO module uses Python 2 and is incompatible with Python 3*
-
-Depends on [spipy](https://github.com/tompreston/spipy).
+*The PiFace Digital IO module uses Python 3 and is incompatible with Python 2*
 
 Installation
 ============
@@ -25,10 +23,10 @@ Examples
     1
     
     >>> pfd = p.PiFaceDigital(1) # creates a PiFace Digtal object (board1)
-    >>> pfd.led(1).turn_on()     # turn on the second LED
-    >>> pfd.switch(3).value      # check the status of switch3
+    >>> pfd.led[1].turn_on()     # turn on the second LED
+    >>> pfd.switch[3].value      # check the status of switch3
     0
-    >>> pfd.relay(0).value = 1   # turn on the first relay
+    >>> pfd.relay[0].value = 1   # turn on the first relay
 
     >>> led0 = p.LED(0)  # create an LED object (pin0, board0)
     >>> led0.turn_on()   # turn on the LED
