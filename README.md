@@ -7,7 +7,7 @@ The PiFace Digital Input/Output module.
 
 Installation
 ============
-    $ sudo python setup.py install
+    $ sudo python3 setup.py install
 
 Examples
 =======
