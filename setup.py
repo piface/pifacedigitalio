@@ -10,5 +10,5 @@ setup(name='pifacedigitalio',
 	author_email='thomasmarkpreston@gmail.com',
 	license='GPLv3+',
 	url='http://pi.cs.man.ac.uk/interface.htm',
-	py_modules=['pifacedigitalio'],
+	py_modules=['pifacedigitalio', 'asm_generic_ioctl'],
 )
