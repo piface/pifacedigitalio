@@ -200,7 +200,7 @@ class InputFunctionMap(list):
 
     map parameters (*optional):
     index    - input pin number
-    into     - direction of change (into 1 or 0, 0 is pressed)
+    into     - direction of change (into 1 or 0, 0 is pressed, None=either)
     callback - function to run when interupt is detected
     board*   - what PiFace digital board to check
 
@@ -408,7 +408,8 @@ def call_mapped_input_functions(input_func_map):
         
         # for each mapping (on this board) see if we have a callback
         for mapping in this_board_ifm:
-            if int_bit_num == mapping['index'] and into == mapping['into']:
+            if int_bit_num == mapping['index'] and \
+                (mapping['into'] == None or into == mapping['into']):
                 mapping['callback'](int_byte)
                 return # one at a time
 

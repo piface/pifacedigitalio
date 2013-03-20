@@ -16,9 +16,12 @@ Run the follow to install pifacedigitalio and its dependencies.
     $ git clone 
     $ sudo ./install.sh
 
+If gpio-admin was installed then make sure to log out and then back in again.
+
 Examples
 =======
-#Basic usage
+Basic usage
+-----------
 
     >>> import pifacedigitalio as p
     >>> p.init()       # initialises the PiFace Digital board 
@@ -50,7 +53,8 @@ Examples
     >>> p.digital_read(2, 3)     # reads pin2 (on board3)
     1
 
-#Polymorphism
+Polymorphism
+------------
     >>> class Chicken(pfio.Relay):
     ...     def __init__(self):
     ...         pfio.Relay.__init__(self, 0)
@@ -60,7 +64,8 @@ Examples
     >>> chick1 = Chicken()
     >>> chick1.wobble()      # Turns on relay0 (connected to a robot chicken)
 
-#Interupts
+Interupts
+---------
     >>> import pifacedigitalio as p
     >>> p.init()
     >>> pfd = p.PiFaceDigital()
