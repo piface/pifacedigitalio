@@ -71,11 +71,11 @@ Interupts
     >>> pfd = p.PiFaceDigital()
     >>>
     >>> # create two functions
-    >>> def test(i):
+    >>> def test(interupt_bit, input_byte):
     ...     print("Input pins: %s" % bin(i))
     ...     pfd.led[0].toggle()
     ...
-    >>> def test2(i):
+    >>> def test2(interupt_bit, input_byte):
     ...     print("Input pins: %s" % bin(i))
     ...     pfd.led[7].toggle()
     ...

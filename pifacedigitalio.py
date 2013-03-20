@@ -204,8 +204,10 @@ class InputFunctionMap(list):
     callback - function to run when interupt is detected
     board*   - what PiFace digital board to check
 
-    def callback(input_port):
-        print(bin(input_port)) # input_port = 0b11110111 <- pin 4 activated
+    def callback(interupted_bit, input_byte):
+        # input_byte = 0b11110111 <- pin 3 caused the interupt
+        # input_byte = 0b10110111 <- pins 6 and 3 activated
+        print(bin(input_byte))
     """
     def register(self, input_index, into, callback, board_index=0):
         self.append({'index' : input_index, 'into' : into,
@@ -410,7 +412,7 @@ def call_mapped_input_functions(input_func_map):
         for mapping in this_board_ifm:
             if int_bit_num == mapping['index'] and \
                 (mapping['into'] == None or into == mapping['into']):
-                mapping['callback'](int_byte)
+                mapping['callback'](int_bit, int_byte)
                 return # one at a time
 
 def clear_interupts():
