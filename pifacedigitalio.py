@@ -226,24 +226,24 @@ def init(init_board=True):
                 HAEN_ON | ODR_OFF | INTPOL_LOW
 
         for board_index in range(MAX_BOARDS):
-            write(IOCON, ioconfig, board_index) # configure
-            write(GPIOA, 0, board_index) # clear port A
-            write(IODIRA, 0, board_index) # set port A as outputs
-            write(IODIRB, 0xFF, board_index) # set port B as inputs
-            write(GPPUB, 0xFF, board_index) # set port B pullups on
+            write(ioconfig, IOCON, board_index) # configure
+            write(0, GPIOA, board_index) # clear port A
+            write(0, IODIRA, board_index) # set port A as outputs
+            write(0xff, IODIRB, board_index) # set port B as inputs
+            write(0xff, GPPUB, board_index) # set port B pullups on
 
             # TODO: don't do this on external ports
             # check the outputs are being set (primitive board detection)
             # AR removed this test as it lead to flashing of outputs which 
             # could surprise users!
             #test_value = 0b10101010
-            #write(OUTPUT_PORT, test_value)
+            #write(test_value, OUTPUT_PORT)
             #if read(OUTPUT_PORT, board_num) != test_value:
             #    spi_handler = None
             #    raise InitError("The PiFace board could not be detected")
 
             # initialise outputs to 0
-            #write(OUTPUT_PORT, 0, board_index)
+            #write(0, OUTPUT_PORT, board_index)
 
 def deinit():
     """Closes the spidev file descriptor"""
@@ -315,7 +315,7 @@ def write_bit(value, bit_num, address, board_num=0):
         new_byte = old_byte | bit_mask
     else:
         new_byte = old_byte & ~bit_mask
-    write(address, new_byte, board_num)
+    write(new_byte, address, board_num)
 
 def __get_device_opcode(board_num, read_write_cmd):
     """Returns the device opcode (as a byte)"""
@@ -329,7 +329,7 @@ def read(address, board_num=0):
     op, addr, data = spisend((devopcode, address, 0)) # data byte is not used
     return data
 
-def write(address, data, board_num=0):
+def write(data, address, board_num=0):
     """Writes data to the address specified"""
     devopcode = __get_device_opcode(board_num, WRITE_CMD)
     op, addr, data = spisend((devopcode, address, data))
@@ -422,7 +422,7 @@ def clear_interupts():
 
 def enable_interupts():
     for board_index in range(MAX_BOARDS):
-        write(GPINTENB, 0xff, board_index)
+        write(0xff, GPINTENB, board_index)
 
     # access quick2wire-gpio-admin for gpio pin twiddling
     try:
@@ -446,4 +446,4 @@ def disable_interupts():
             raise e
 
     for board_index in range(MAX_BOARDS):
-        write(GPINTENB, 0, board_index) # disable the interupt
+        write(0, GPINTENB, board_index) # disable the interupt
