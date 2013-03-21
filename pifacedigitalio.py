@@ -178,6 +178,8 @@ class PiFaceDigital(object):
     """A single PiFace Digital board"""
     def __init__(self, board_num=0):
         self.board_num = board_num
+        self.input_pin  = [InputItem(i, board_num)  for i in range(8)]
+        self.output_pin = [OutputItem(i, board_num) for i in range(8)]
         self.led    = [LED(i, board_num)    for i in range(8)]
         self.relay  = [Relay(i, board_num)  for i in range(2)]
         self.switch = [Switch(i, board_num) for i in range(4)]
