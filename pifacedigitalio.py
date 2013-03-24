@@ -98,6 +98,9 @@ class InputDeviceError(Exception):
 class RangeError(Exception):
     pass
 
+class NoPiFaceDigitalDetectedError(Exception):
+    pass
+
 
 # classes
 class Item(object):
@@ -227,25 +230,22 @@ def init(init_board=True):
         ioconfig = BANK_OFF | INT_MIRROR_OFF | SEQOP_ON | DISSLW_OFF | \
                 HAEN_ON | ODR_OFF | INTPOL_LOW
 
+        pfd_detected = False
+
         for board_index in range(MAX_BOARDS):
             write(ioconfig, IOCON, board_index) # configure
+
+            if not pfd_detected and read(IOCON, board_index) == ioconfig:
+                pfd_detected = True
+
             write(0, GPIOA, board_index) # clear port A
             write(0, IODIRA, board_index) # set port A as outputs
             write(0xff, IODIRB, board_index) # set port B as inputs
             write(0xff, GPPUB, board_index) # set port B pullups on
 
-            # TODO: don't do this on external ports
-            # check the outputs are being set (primitive board detection)
-            # AR removed this test as it lead to flashing of outputs which 
-            # could surprise users!
-            #test_value = 0b10101010
-            #write(test_value, OUTPUT_PORT)
-            #if read(OUTPUT_PORT, board_num) != test_value:
-            #    spi_handler = None
-            #    raise InitError("The PiFace board could not be detected")
-
-            # initialise outputs to 0
-            #write(0, OUTPUT_PORT, board_index)
+        if not pfd_detected:
+            raise NoPiFaceDigitalDetectedError(
+                    "There was no PiFace Digital board detected!")
 
 def deinit():
     """Closes the spidev file descriptor"""
