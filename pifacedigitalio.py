@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Provides I/O methods for interfacing with PiFace Digital (for Raspberry Pi)
 Copyright (C) 2013 Thomas Preston <thomasmarkpreston@gmail.com>
 
@@ -24,7 +24,6 @@ from fcntl import ioctl
 from asm_generic_ioctl import _IOW
 from time import sleep
 from datetime import datetime
-
 
 # spi stuff requires Python 3
 assert sys.version_info.major >= 3, __name__ + " is only supported on Python 3."
@@ -105,11 +104,9 @@ class NoPiFaceDigitalDetectedError(Exception):
 # classes
 class Item(object):
     """An item connected to a pin on PiFace Digital"""
-    def __init__(self, pin_num, board_num=0, handler=None):
+    def __init__(self, pin_num, board_num=0):
         self.pin_num = pin_num
         self.board_num = board_num
-        if handler:
-            self.handler = handler
 
     @property
     def handler(self):
@@ -117,8 +114,8 @@ class Item(object):
 
 class InputItem(Item):
     """An input connected to a pin on PiFace Digital"""
-    def __init__(self, pin_num, board_num=0, handler=None):
-        super().__init__(pin_num, board_num, handler)
+    def __init__(self, pin_num, board_num=0):
+        super().__init__(pin_num, board_num)
 
     @property
     def value(self):
@@ -130,8 +127,8 @@ class InputItem(Item):
 
 class OutputItem(Item):
     """An output connected to a pin on PiFace Digital"""
-    def __init__(self, pin_num, board_num=0, handler=None):
-        super().__init__(pin_num, board_num, handler)
+    def __init__(self, pin_num, board_num=0):
+        super().__init__(pin_num, board_num)
 
     @property
     def value(self):
@@ -152,42 +149,42 @@ class OutputItem(Item):
 
 class LED(OutputItem):
     """An LED on PiFace Digital"""
-    def __init__(self, led_num, board_num=0, handler=None):
+    def __init__(self, led_num, board_num=0):
         if led_num < 0 or led_num > 7:
             raise RangeError(
                     "Specified LED index (%d) out of range." % led_num)
         else:
-            super().__init__(led_num, board_num, handler)
+            super().__init__(led_num, board_num)
 
 class Relay(OutputItem):
     """A relay on PiFace Digital"""
-    def __init__(self, relay_num, board_num=0, handler=None):
+    def __init__(self, relay_num, board_num=0):
         if relay_num < 0 or relay_num > 1:
             raise RangeError(
                     "Specified relay index (%d) out of range." % relay_num)
         else:
-            super().__init__(relay_num, board_num, handler)
+            super().__init__(relay_num, board_num)
 
 class Switch(InputItem):
     """A switch on PiFace Digital"""
-    def __init__(self, switch_num, board_num=0, handler=None):
+    def __init__(self, switch_num, board_num=0):
         if switch_num < 0 or switch_num > 3:
             raise RangeError(
                   "Specified switch index (%d) out of range." % switch_num)
         else:
-            super().__init__(switch_num, board_num, handler)
+            super().__init__(switch_num, board_num)
 
 class PiFaceDigital(object):
     """A single PiFace Digital board"""
-    def __init__(self, board_num=0, handler=None):
-        self.board_num = board_num
-        self.input_pin  = [InputItem(i, board_num, handler)  for i in range(8)]
-        self.output_pin = [OutputItem(i, board_num, handler) for i in range(8)]
-        self.led    = [LED(i, board_num, handler)    for i in range(8)]
-        self.relay  = [Relay(i, board_num, handler)  for i in range(2)]
-        self.switch = [Switch(i, board_num, handler) for i in range(4)]
+    def __init__(self, board_num=0):
+        self.board_num   = board_num
+        self.input_pins  = [InputItem(i, board_num)  for i in range(8)]
+        self.output_pins = [OutputItem(i, board_num) for i in range(8)]
+        self.leds     = [LED(i, board_num)    for i in range(8)]
+        self.relays   = [Relay(i, board_num)  for i in range(2)]
+        self.switches = [Switch(i, board_num) for i in range(4)]
 
-class _spi_ioc_transfer(ctypes.Structure):                                      
+class _spi_ioc_transfer(ctypes.Structure):
     """SPI ioc transfer structure (from linux/spi/spidev.h)"""
     _fields_ = [
         ("tx_buf", ctypes.c_uint64),
