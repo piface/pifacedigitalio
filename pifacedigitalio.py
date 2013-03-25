@@ -179,13 +179,13 @@ class Switch(InputItem):
 
 class PiFaceDigital(object):
     """A single PiFace Digital board"""
-    def __init__(self, board_num=0):
+    def __init__(self, board_num=0, handler=None):
         self.board_num = board_num
-        self.input_pin  = [InputItem(i, board_num)  for i in range(8)]
-        self.output_pin = [OutputItem(i, board_num) for i in range(8)]
-        self.led    = [LED(i, board_num)    for i in range(8)]
-        self.relay  = [Relay(i, board_num)  for i in range(2)]
-        self.switch = [Switch(i, board_num) for i in range(4)]
+        self.input_pin  = [InputItem(i, board_num, handler)  for i in range(8)]
+        self.output_pin = [OutputItem(i, board_num, handler) for i in range(8)]
+        self.led    = [LED(i, board_num, handler)    for i in range(8)]
+        self.relay  = [Relay(i, board_num, handler)  for i in range(2)]
+        self.switch = [Switch(i, board_num, handler) for i in range(4)]
 
 class _spi_ioc_transfer(ctypes.Structure):                                      
     """SPI ioc transfer structure (from linux/spi/spidev.h)"""
