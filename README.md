@@ -7,6 +7,20 @@ The PiFace Digital Input/Output module.
 
 Installation
 ============
+### Enabling the SPI module
+PiFace Digital communicates with the Raspberry Pi using the SPI interface.
+The SPI interface driver is included in the later Raspbian distributions
+but is not enabled by default.
+
+To load the SPI driver manually, type:
+
+    # modprobe spi-bcm2708
+
+*This will not persist after a reboot.* To permanently enable the SPI module
+comment out the spi module blacklist line in /etc/modprobe.d/raspi-blacklist.conf
+(you will have to be root).
+
+### Installing the software
     $ sudo ./install.sh
 
 If gpio-admin was installed then make sure to log out and then back in again.
