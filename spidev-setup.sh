@@ -15,7 +15,7 @@ fi
 if [ -f $udev_rules_file ]
 then
 	printf 'The spi rules file already exists.\nExiting...\n'
-	exit 1
+	exit 0
 fi
 
 
