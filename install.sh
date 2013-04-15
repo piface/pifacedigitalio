@@ -16,6 +16,10 @@ then
     printf "\n"
 fi
 
+# set up spidev permissions
+./spidev-setup
+
+# install python library
 printf "Installing pifacedigitalio...\n"
 python3 setup.py install
 printf "Done!\n"
