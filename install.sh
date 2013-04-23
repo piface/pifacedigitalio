@@ -8,6 +8,20 @@ then
 	exit 1
 fi
 
+# depends on pifacecommon
+python3 -c "import pifacecommon" # is it installed?
+if [ $? -ne 0 ]
+then
+    # install pifacecommon
+    printf "Downloading pifacecommon...\n"
+    git clone https://github.com/piface/pifacecommon.git
+    cd pifacecommon
+    #python3 setup.py install
+    ./install.sh
+    cd -
+    printf "\n"
+fi
+
 # depends on gpio-admin (no point re-inventing the wheel)
 type gpio-admin > /dev/null 2>&1 # is it installed?
 if [ $? -ne 0 ]
