@@ -23,14 +23,6 @@ then
     printf "\n"
 fi
 
-# set up spidev permissions
-./spidev-setup.sh
-if [ $? -ne 0 ]
-then
-    printf "Failed to setup spidev.\nExiting...\n"
-    exit 1
-fi
-
 # install python library
 printf "Installing pifacedigitalio...\n"
 python3 setup.py install
