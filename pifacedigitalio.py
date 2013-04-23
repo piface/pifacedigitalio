@@ -53,7 +53,12 @@ class Item(object):
     """An item connected to a pin on PiFace Digital"""
     def __init__(self, pin_num, board_num=0):
         self.pin_num = pin_num
-        self.board_num = board_num
+        if board_num < 0 or board_num >= MAX_BOARDS:
+            raise RangeError(
+                "Specified board index (%d) out of range." % board_num
+            )
+        else:
+            self.board_num = board_num
 
     @property
     def handler(self):
