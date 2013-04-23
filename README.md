@@ -69,7 +69,7 @@ Examples
     >>> chick1 = Chicken()
     >>> chick1.wobble()      # Turns on relay0 (connected to a robot chicken)
 
-### Interupts
+### Interrupts
     >>> import pifacedigitalio as p
     >>> p.init()
     >>> pfd = p.PiFaceDigital()
