@@ -15,7 +15,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-import sys
 import select
 import subprocess
 import pifacecommon as pfcom
@@ -58,7 +57,7 @@ class Item(object):
 
     @property
     def handler(self):
-        return sys.modules[__name__]
+        return pfcom
 
 
 class InputItem(Item):
