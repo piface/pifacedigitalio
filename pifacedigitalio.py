@@ -145,7 +145,9 @@ class PiFaceDigital(object):
 
 class InputFunctionMap(list):
     """Maps inputs pins to callback functions.
-    The callback function is passed a the input port as a byte
+    The callback function is passed a the interrupt bit map as a byte and the
+    input port as a byte. The return value specifies whether the
+    wait_for_input loop should continue (True is continue).
 
     map parameters (*optional):
     index    - input pin number
@@ -153,10 +155,11 @@ class InputFunctionMap(list):
     callback - function to run when interupt is detected
     board*   - what PiFace digital board to check
 
-    def callback(interupted_bit, input_byte):
+    def my_callback(interupted_bit, input_byte):
          # input_byte = 0b11110111 <- pin 3 caused the interupt
          # input_byte = 0b10110111 <- pins 6 and 3 activated
         print(bin(input_byte))
+        return True  # keep waiting for interrupts
     """
     def register(self, input_index, into, callback, board_index=0):
         self.append({
@@ -228,12 +231,11 @@ def digital_write_pullup(pin_num, value, board_num=0):
 
 
 # interupts
-def wait_for_input(input_func_map=None, loop=False, timeout=None):
+def wait_for_input(input_func_map=None, timeout=None):
     """Waits for an input to be pressed (using interups rather than polling)
 
     Paramaters:
     input_func_map - An InputFunctionMap object describing callbacks
-    loop           - If true, keep checking interupt status
     timeout        - How long we should wait before giving up and exiting the
                      function
     """
@@ -249,22 +251,22 @@ def wait_for_input(input_func_map=None, loop=False, timeout=None):
         try:
             events = epoll.poll(timeout) if timeout else epoll.poll()
         except KeyboardInterrupt:
-            epoll.close()
-            disable_interupts()  # more graceful
-            raise
+            break
 
+        # if we have some events...
         if len(events) <= 0:
-            epoll.close()
-            disable_interupts()
-            return
+            break
 
+        # ...and a map
         if input_func_map:
-            call_mapped_input_functions(input_func_map)
+            keep_waiting = call_mapped_input_functions(input_func_map)
+            if not keep_waiting:
+                break
+        else:
+            break  # there is no ifm
 
-        if not loop:
-            epoll.close()
-            disable_interupts()
-            return
+    epoll.close()
+    disable_interupts()
 
 
 def call_mapped_input_functions(input_func_map):
@@ -283,8 +285,14 @@ def call_mapped_input_functions(input_func_map):
         for mapping in this_board_ifm:
             if int_bit_num == mapping['index'] and \
                     (mapping['into'] is None or into == mapping['into']):
-                mapping['callback'](int_bit, int_byte)
-                return  # one at a time
+                # run the callback
+                keep_waiting = mapping['callback'](int_bit, int_byte)
+                
+                # stop waiting for interrupts, by default
+                if keep_waiting == None:
+                    keep_waiting = False
+
+                return keep_waiting
 
 
 def clear_interupts():

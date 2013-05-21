@@ -64,12 +64,14 @@ Examples
     >>> def test(interupt_bit, input_byte):
     ...     print("Input pins: %s" % bin(input_byte))
     ...     pfd.leds[0].toggle()
+    ...     return True  # keep waiting for interrupts
     ...
     >>> def test2(interupt_bit, input_byte):
     ...     print("Input pins: %s" % bin(input_byte))
     ...     pfd.leds[7].toggle()
+    ...     return False  # strop waiting for interrupts (default behaviour)
     ...
     >>> ifm = p.InputFunctionMap()       # create the input function map
     >>> ifm.register(0, 0, test)         # and register some input/callbacks
     >>> ifm.register(index=3, into=0, callback=test2, board=0)
-    >>> p.wait_for_input(ifm, loop=True) # loop=False, wait_for_input() will return
+    >>> p.wait_for_input(ifm)
