@@ -47,7 +47,7 @@ class TestDigitalRead(unittest.TestCase):
         pfdio.pfcom.read_bit = lambda pin, port, board: 1  # function returns 1
 
     def test_flip_bit(self):
-        self.assertEqual(pfdio.digital_read(0, 0, 0), 0)  # should return 0
+        self.assertEqual(pfdio.digital_read(0, 0), 0)  # should return 0
 
 
 if __name__ == "__main__":

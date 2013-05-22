@@ -58,7 +58,7 @@ Examples
 ### Interrupts
 Let's see what the InputFunctionMap does.
 
-    >>> print(**p.InputFunctionMap**.__doc__)
+    >>> print(p.InputFunctionMap.__doc__)
     Maps inputs pins to functions.
     
         Use the register method to map inputs to functions.
