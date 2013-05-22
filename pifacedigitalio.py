@@ -27,10 +27,13 @@ SPI_CHIP_SELECT = 0
 OUTPUT_PORT = pfcom.GPIOA
 INPUT_PORT = pfcom.GPIOB
 INPUT_PULLUP = pfcom.GPPUB
+IN_EVENT_DIR_ON = 0
+IN_EVENT_DIR_OFF = 1
+IN_EVENT_DIR_BOTH = None
 
 MAX_BOARDS = 4
 
-GPIO_INTERUPT_DEVICE = '/sys/devices/virtual/gpio/gpio25/'
+GPIO_interrupt_DEVICE = '/sys/devices/virtual/gpio/gpio25/'
 
 
 class InitError(Exception):
@@ -144,27 +147,34 @@ class PiFaceDigital(object):
 
 
 class InputFunctionMap(list):
-    """Maps inputs pins to callback functions.
-    The callback function is passed a the interrupt bit map as a byte and the
-    input port as a byte. The return value specifies whether the
+    """Maps inputs pins to functions.
+
+    Use the register method to map inputs to functions.
+
+    Each function is passed the interrupt bit map as a byte and the input
+    port as a byte. The return value of the function specifies whether the
     wait_for_input loop should continue (True is continue).
 
-    map parameters (*optional):
-    index    - input pin number
-    into     - direction of change (into 1 or 0, 0 is pressed, None =either)
-    callback - function to run when interupt is detected
-    board*   - what PiFace digital board to check
+    Register Parameters (*optional):
+    input_index - input pin number
+    direction   - direction of change
+                        IN_EVENT_DIR_ON
+                        IN_EVENT_DIR_OFF
+                        IN_EVENT_DIR_BOTH
+    callback    - function to run when interrupt is detected
+    board*      - what PiFace digital board to check
 
-    def my_callback(interupted_bit, input_byte):
-         # input_byte = 0b11110111 <- pin 3 caused the interupt
-         # input_byte = 0b10110111 <- pins 6 and 3 activated
-        print(bin(input_byte))
+    Example:
+    def my_callback(interrupted_bit, input_byte):
+         # if interrupted_bit = 0b00001000: pin 3 caused the interrupt
+         # if input_byte = 0b10110111: pins 6 and 3 activated
+        print(bin(interrupted_bit), bin(input_byte))
         return True  # keep waiting for interrupts
     """
-    def register(self, input_index, into, callback, board_index=0):
+    def register(self, input_index, direction, callback, board_index=0):
         self.append({
             'index': input_index,
-            'into': into,
+            'direction': direction,
             'callback': callback,
             'board': board_index})
 
@@ -230,26 +240,29 @@ def digital_write_pullup(pin_num, value, board_num=0):
     pfcom.write_bit(value, pin_num, INPUT_PULLUP, board_num)
 
 
-# interupts
+# interrupts
 def wait_for_input(input_func_map=None, timeout=None):
-    """Waits for an input to be pressed (using interups rather than polling)
+    """Waits for an input port event (change)
 
     Paramaters:
     input_func_map - An InputFunctionMap object describing callbacks
     timeout        - How long we should wait before giving up and exiting the
                      function
     """
-    enable_interupts()
+    enable_interrupts()
 
-     # set up epoll (can't do it in enable_interupts for some reason)
-    gpio25 = open(GPIO_INTERUPT_DEVICE+'value', 'r')
+     # set up epoll (can't do it in enable_interrupts for some reason)
+    gpio25 = open(GPIO_interrupt_DEVICE+'value', 'r')
     epoll = select.epoll()
     epoll.register(gpio25, select.EPOLLIN | select.EPOLLET)
+
+    # always ignore the first event (I'm not sure why; this is a bad)
+    _wait_for_event(epoll, timeout)
 
     while True:
         # wait here until input
         try:
-            events = epoll.poll(timeout) if timeout else epoll.poll()
+            events = _wait_for_event(epoll, timeout)
         except KeyboardInterrupt:
             break
 
@@ -259,49 +272,66 @@ def wait_for_input(input_func_map=None, timeout=None):
 
         # ...and a map
         if input_func_map:
-            keep_waiting = call_mapped_input_functions(input_func_map)
+            keep_waiting = _call_mapped_input_functions(input_func_map)
             if not keep_waiting:
                 break
         else:
             break  # there is no ifm
 
     epoll.close()
-    disable_interupts()
+    disable_interrupts()
 
 
-def call_mapped_input_functions(input_func_map):
+def _wait_for_event(epoll, timeout=None):
+    """Waits for an event on the epoll, returns a list of events
+    This will hang, may throw KeyboardInterrupt
+    """
+    return epoll.poll(timeout) if timeout else epoll.poll()
+
+
+def _call_mapped_input_functions(input_func_map):
+    """Finds which board caused the interrupt and calls the mapped
+    function.
+    Returns whether the wait_for_input function should keep waiting for input
+    """
     for board_i in range(MAX_BOARDS):
         this_board_ifm = [m for m in input_func_map if m['board'] == board_i]
 
-        # read the interupt status of this PiFace board
+        # read the interrupt status of this PiFace board
         int_bit = pfcom.read(pfcom.INTFB, board_i)
         if int_bit == 0:
-            continue  # The interupt has not been flagged on this board
+            continue  # The interrupt has not been flagged on this board
         int_bit_num = pfcom.get_bit_num(int_bit)
         int_byte = pfcom.read(pfcom.INTCAPB, board_i)
-        into = (int_bit & int_byte) >> int_bit_num  # bit changed into (0/1)
+        direction = (int_bit & int_byte) >> int_bit_num  # bit changed into (0/1)
 
-         # for each mapping (on this board) see if we have a callback
+        # for each mapping (on this board) see if we have a callback
         for mapping in this_board_ifm:
             if int_bit_num == mapping['index'] and \
-                    (mapping['into'] is None or into == mapping['into']):
+                    (mapping['direction'] is None or
+                        direction == mapping['direction']):
                 # run the callback
                 keep_waiting = mapping['callback'](int_bit, int_byte)
-                
+
                 # stop waiting for interrupts, by default
-                if keep_waiting == None:
+                if keep_waiting is None:
                     keep_waiting = False
 
                 return keep_waiting
 
+    # This event does not have a mapped function, keep waiting
+    return True
 
-def clear_interupts():
-    """Clears the interupt flags by pfcom.reading the capture register on all boards"""
+
+def clear_interrupts():
+    """Clears the interrupt flags by 'pfcom.read'ing the capture register
+    on all boards
+    """
     for i in range(MAX_BOARDS):
         pfcom.read(pfcom.INTCAPB, i)
 
 
-def enable_interupts():
+def enable_interrupts():
     for board_index in range(MAX_BOARDS):
         pfcom.write(0xff, pfcom.GPINTENB, board_index)
 
@@ -313,12 +343,12 @@ def enable_interupts():
             raise e
 
      # we're only interested in the falling edges of this file (1 -> 0)
-    with open(GPIO_INTERUPT_DEVICE+'edge', 'w') as gpio25edge:
+    with open(GPIO_interrupt_DEVICE+'edge', 'w') as gpio25edge:
         gpio25edge.write('falling')
 
 
-def disable_interupts():
-    with open(GPIO_INTERUPT_DEVICE+'edge', 'w') as gpio25edge:
+def disable_interrupts():
+    with open(GPIO_interrupt_DEVICE+'edge', 'w') as gpio25edge:
         gpio25edge.write('none')
 
     try:
@@ -328,4 +358,4 @@ def disable_interupts():
             raise e
 
     for board_index in range(MAX_BOARDS):
-        pfcom.write(0, pfcom.GPINTENB, board_index)  # disable the interupt
+        pfcom.write(0, pfcom.GPINTENB, board_index)  # disable the interrupt

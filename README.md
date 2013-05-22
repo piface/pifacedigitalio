@@ -56,22 +56,60 @@ Examples
     >>> chick1.wobble()      # Turns on relay0 (connected to a robot chicken)
 
 ### Interrupts
+Let's see what the InputFunctionMap does.
+
+    >>> print(**p.InputFunctionMap**.__doc__)
+    Maps inputs pins to functions.
+    
+        Use the register method to map inputs to functions.
+
+        Each function is passed the interrupt bit map as a byte and the input
+        port as a byte. The return value of the function specifies whether the
+        wait_for_input loop should continue (True is continue).
+
+        Register Parameters (*optional):
+        input_index - input pin number
+        direction   - direction of change
+                        IN_EVENT_DIR_ON
+                        IN_EVENT_DIR_OFF
+                        IN_EVENT_DIR_BOTH
+        callback    - function to run when interrupt is detected
+        board*      - what PiFace digital board to check
+
+        Example:
+        def my_callback(interrupted_bit, input_byte):
+             # if interrupted_bit = 0b00001000: pin 3 caused the interrupt
+             # if input_byte = 0b10110111: pins 6 and 3 activated
+            print(bin(interrupted_bit), bin(input_byte))
+            return True  # keep waiting for interrupts
+    
+    >>>
+
+And using it.
+
     >>> import pifacedigitalio as p
     >>> p.init()
     >>> pfd = p.PiFaceDigital()
     >>>
     >>> # create two functions
-    >>> def test(interupt_bit, input_byte):
-    ...     print("Input pins: %s" % bin(input_byte))
+    >>> def toggle_led0(interrupt_bit, input_byte):
     ...     pfd.leds[0].toggle()
     ...     return True  # keep waiting for interrupts
     ...
-    >>> def test2(interupt_bit, input_byte):
-    ...     print("Input pins: %s" % bin(input_byte))
+    >>> def toggle_led7(interrupt_bit, input_byte):
     ...     pfd.leds[7].toggle()
-    ...     return False  # strop waiting for interrupts (default behaviour)
+    ...     return False  # stop waiting for interrupts (default behaviour)
     ...
-    >>> ifm = p.InputFunctionMap()       # create the input function map
-    >>> ifm.register(0, 0, test)         # and register some input/callbacks
-    >>> ifm.register(index=3, into=0, callback=test2, board=0)
-    >>> p.wait_for_input(ifm)
+    >>> ifm = p.InputFunctionMap()
+    >>> ifm.register(
+            index=0,
+            direction=p.IN_EVENT_DIR_ON,
+            callback=toggle_led0,
+            board=0)
+    >>> ifm.register(
+            index=1,
+            direction=p.IN_EVENT_DIR_ON,
+            callback=toggle_led7,
+            board=0)
+    >>>
+    >>> p.wait_for_input(ifm)  # will return after pressing input 1
