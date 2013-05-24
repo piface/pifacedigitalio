@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import select
 import subprocess
+import time
 import pifacecommon as pfcom
 
 # /dev/spidev<bus>.<chipselect>
@@ -33,7 +34,15 @@ IN_EVENT_DIR_BOTH = None
 
 MAX_BOARDS = 4
 
-GPIO_interrupt_DEVICE = '/sys/devices/virtual/gpio/gpio25/'
+GPIO_INTERRUPT_PIN = 25
+GPIO_INTERRUPT_DEVICE = "/sys/devices/virtual/gpio/gpio%d" % GPIO_INTERRUPT_PIN
+GPIO_INTERRUPT_DEVICE_EDGE = '%s/edge' % GPIO_INTERRUPT_DEVICE
+GPIO_INTERRUPT_DEVICE_VALUE = '%s/value' % GPIO_INTERRUPT_DEVICE
+GPIO_EXPORT_FILE = "/sys/class/gpio/export"
+GPIO_UNEXPORT_FILE = "/sys/class/gpio/unexport"
+
+# max seconds to wait for file I/O (when enabling interrupts)
+FILE_IO_TIMEOUT = 1
 
 
 class InitError(Exception):
@@ -49,6 +58,14 @@ class RangeError(Exception):
 
 
 class NoPiFaceDigitalDetectedError(Exception):
+    pass
+
+
+class Timeout(Exception):
+    pass
+
+
+class InterruptEnableException(Exception):
     pass
 
 
@@ -251,13 +268,13 @@ def wait_for_input(input_func_map=None, timeout=None):
     """
     enable_interrupts()
 
-     # set up epoll (can't do it in enable_interrupts for some reason)
-    gpio25 = open(GPIO_interrupt_DEVICE+'value', 'r')
+    # set up epoll (can't do it in enable_interrupts for some reason)
+    gpio25 = open(GPIO_INTERRUPT_DEVICE_VALUE, 'r')
     epoll = select.epoll()
     epoll.register(gpio25, select.EPOLLIN | select.EPOLLET)
 
     # always ignore the first event (I'm not sure why; this is a bad)
-    _wait_for_event(epoll, timeout)
+    #_wait_for_event(epoll, timeout)
 
     while True:
         # wait here until input
@@ -298,12 +315,17 @@ def _call_mapped_input_functions(input_func_map):
         this_board_ifm = [m for m in input_func_map if m['board'] == board_i]
 
         # read the interrupt status of this PiFace board
+        # interrupt bit (int_bit) - bit map showing what caused the interrupt
         int_bit = pfcom.read(pfcom.INTFB, board_i)
         if int_bit == 0:
             continue  # The interrupt has not been flagged on this board
         int_bit_num = pfcom.get_bit_num(int_bit)
+        
+        # interrupt byte (int_byte) - snapshot of in port when int occured
         int_byte = pfcom.read(pfcom.INTCAPB, board_i)
-        direction = (int_bit & int_byte) >> int_bit_num  # bit changed into (0/1)
+
+        # direction - whether the bit changed into a 1 or a 0
+        direction = (int_bit & int_byte) >> int_bit_num
 
         # for each mapping (on this board) see if we have a callback
         for mapping in this_board_ifm:
@@ -332,30 +354,66 @@ def clear_interrupts():
 
 
 def enable_interrupts():
+    # enable interrupts
     for board_index in range(MAX_BOARDS):
         pfcom.write(0xff, pfcom.GPINTENB, board_index)
 
-    # access quick2wire-gpio-admin for gpio pin twiddling
     try:
-        subprocess.check_call(["gpio-admin", "export", "25"])
-    except subprocess.CalledProcessError as e:
-        if e.returncode != 4:  # we can ignore 4 (gpio25 is already up)
-            raise e
+        _bring_gpio_interrupt_into_userspace()
+        _set_gpio_interrupt_edge()
+    except Timeout as e:
+        raise InterruptEnableException(
+            "There was an error bringing gpio%d into userspace. %s" % \
+            (GPIO_INTERRUPT_PIN, e.message)
+        )
 
-     # we're only interested in the falling edges of this file (1 -> 0)
-    with open(GPIO_interrupt_DEVICE+'edge', 'w') as gpio25edge:
-        gpio25edge.write('falling')
+
+def _bring_gpio_interrupt_into_userspace():
+    try:
+        # is it already there?
+        with open(GPIO_INTERRUPT_DEVICE_VALUE): return
+    except IOError:
+        # no, bring it into userspace
+        with open(GPIO_EXPORT_FILE, 'w') as export_file:
+            export_file.write(str(GPIO_INTERRUPT_PIN))
+
+        _wait_until_file_exists(GPIO_INTERRUPT_DEVICE_VALUE)
+
+
+def _set_gpio_interrupt_edge():
+    # we're only interested in the falling edge (1 -> 0)
+    start_time = time.time()
+    time_limit = start_time + FILE_IO_TIMEOUT
+    while time.time() < time_limit:
+        try:
+            with open(GPIO_INTERRUPT_DEVICE_EDGE, 'w') as gpio_edge:
+                gpio_edge.write('falling')
+                return
+        except IOError:
+            pass
+
+
+def _wait_until_file_exists(filename):
+    start_time = time.time()
+    time_limit = start_time + FILE_IO_TIMEOUT
+    while time.time() < time_limit:
+        try:
+            with open(filename): return
+        except IOError:
+            pass
+    
+    raise Timeout("Waiting too long for %s." % filename)
 
 
 def disable_interrupts():
-    with open(GPIO_interrupt_DEVICE+'edge', 'w') as gpio25edge:
+    # neither edge
+    with open(GPIO_INTERRUPT_DEVICE_EDGE, 'w') as gpio25edge:
         gpio25edge.write('none')
 
-    try:
-        subprocess.check_call(["gpio-admin", "unexport", "25"])
-    except subprocess.CalledProcessError as e:
-        if e.returncode != 4:  # we can ignore 4 (gpio25 is already down)
-            raise e
+    # remove the pin from userspace
+    with open(GPIO_UNEXPORT_FILE, 'w') as unexport_file:
+        unexport_file.write(str(GPIO_INTERRUPT_PIN))
 
+    # disable the interrupt
     for board_index in range(MAX_BOARDS):
-        pfcom.write(0, pfcom.GPINTENB, board_index)  # disable the interrupt
+        pfcom.write(0, pfcom.GPINTENB, board_index)

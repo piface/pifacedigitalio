@@ -22,21 +22,6 @@ then
     printf "\n"
 fi
 
-# depends on gpio-admin (no point re-inventing the wheel)
-type gpio-admin > /dev/null 2>&1 # is it installed?
-if [ $? -ne 0 ]
-then
-    # install gpio-admin
-    printf "Installing gpio-admin...\n"
-    git clone https://github.com/quick2wire/quick2wire-gpio-admin.git
-    cd quick2wire-gpio-admin
-    make
-    make install
-    gpasswd -a pi gpio
-    cd -
-    printf "\n"
-fi
-
 # install python library
 printf "Installing pifacedigitalio...\n"
 python3 setup.py install
