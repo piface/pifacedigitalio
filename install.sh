@@ -22,6 +22,14 @@ then
     printf "\n"
 fi
 
+# set up gpio permissions
+./gpio-setup.sh
+if [ $? -ne 0 ]
+then
+    printf "Failed to setup gpio.\nExiting...\n"
+    exit 1
+fi
+
 # install python library
 printf "Installing pifacedigitalio...\n"
 python3 setup.py install
