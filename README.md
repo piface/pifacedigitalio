@@ -9,7 +9,7 @@ Installation
 ============
     $ sudo ./install.sh
 
-If gpio-admin was installed then make sure to log out and then back in again.
+You may need to reboot for interrupts to work.
 
 Examples
 =======
