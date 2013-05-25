@@ -32,8 +32,6 @@ IN_EVENT_DIR_ON = 0
 IN_EVENT_DIR_OFF = 1
 IN_EVENT_DIR_BOTH = None
 
-MAX_BOARDS = 4
-
 GPIO_INTERRUPT_PIN = 25
 GPIO_INTERRUPT_DEVICE = "/sys/devices/virtual/gpio/gpio%d" % GPIO_INTERRUPT_PIN
 GPIO_INTERRUPT_DEVICE_EDGE = '%s/edge' % GPIO_INTERRUPT_DEVICE
@@ -49,14 +47,6 @@ class InitError(Exception):
     pass
 
 
-class InputDeviceError(Exception):
-    pass
-
-
-class RangeError(Exception):
-    pass
-
-
 class NoPiFaceDigitalDetectedError(Exception):
     pass
 
@@ -69,95 +59,44 @@ class InterruptEnableException(Exception):
     pass
 
 
-class Item(object):
-    """An item connected to a pin on PiFace Digital"""
-    def __init__(self, pin_num, board_num=0):
-        self.pin_num = pin_num
-        if board_num < 0 or board_num >= MAX_BOARDS:
-            raise RangeError(
-                "Specified board index (%d) out of range." % board_num
-            )
-        else:
-            self.board_num = board_num
-
-    @property
-    def handler(self):
-        return pfcom
-
-
-class InputItem(Item):
-    """An input connected to a pin on PiFace Digital"""
-    def __init__(self, pin_num, board_num=0):
-        super().__init__(pin_num, board_num)
-
-    @property
-    def value(self):
-        return 1 ^ self.handler.read_bit(self.pin_num, INPUT_PORT, self.board_num)
-
-    @value.setter
-    def value(self, data):
-        raise InputDeviceError("You cannot set an input's values!")
-
-
-class OutputItem(Item):
-    """An output connected to a pin on PiFace Digital"""
-    def __init__(self, pin_num, board_num=0):
-        super().__init__(pin_num, board_num)
-
-    @property
-    def value(self):
-        return self.handler.read_bit(self.pin_num, OUTPUT_PORT, self.board_num)
-
-    @value.setter
-    def value(self, data):
-        return self.handler.write_bit(data, self.pin_num, OUTPUT_PORT, self.board_num)
-
-    def turn_on(self):
-        self.value = 1
-
-    def turn_off(self):
-        self.value = 0
-
-    def toggle(self):
-        self.value = not self.value
-
-
-class LED(OutputItem):
+class LED(pfcom.DigitalOutputItem):
     """An LED on PiFace Digital"""
     def __init__(self, led_num, board_num=0):
         if led_num < 0 or led_num > 7:
-            raise RangeError(
+            raise pfcom.RangeError(
                 "Specified LED index (%d) out of range." % led_num)
         else:
-            super().__init__(led_num, board_num)
+            super().__init__(led_num, OUTPUT_PORT, board_num)
 
 
-class Relay(OutputItem):
+class Relay(pfcom.DigitalOutputItem):
     """A relay on PiFace Digital"""
     def __init__(self, relay_num, board_num=0):
         if relay_num < 0 or relay_num > 1:
-            raise RangeError(
+            raise pfcom.RangeError(
                 "Specified relay index (%d) out of range." % relay_num)
         else:
-            super().__init__(relay_num, board_num)
+            super().__init__(relay_num, OUTPUT_PORT, board_num)
 
 
-class Switch(InputItem):
+class Switch(pfcom.DigitalInputItem):
     """A switch on PiFace Digital"""
     def __init__(self, switch_num, board_num=0):
         if switch_num < 0 or switch_num > 3:
-            raise RangeError(
+            raise pfcom.RangeError(
                 "Specified switch index (%d) out of range." % switch_num)
         else:
-            super().__init__(switch_num, board_num)
+            super().__init__(switch_num, INPUT_PORT, board_num)
 
 
 class PiFaceDigital(object):
     """A single PiFace Digital board"""
     def __init__(self, board_num=0):
         self.board_num = board_num
-        self.input_pins = [InputItem(i, board_num) for i in range(8)]
-        self.output_pins = [OutputItem(i, board_num) for i in range(8)]
+        self.input_pins = [pfcom.DigitalInputItem(i, INPUT_PORT, board_num) \
+                for i in range(8)]
+        self.output_pins = [pfcom.DigitalOutputItem(i, OUTPUT_PORT, board_num) \
+                for i in range(8)]
         self.leds = [LED(i, board_num) for i in range(8)]
         self.relays = [Relay(i, board_num) for i in range(2)]
         self.switches = [Switch(i, board_num) for i in range(4)]
@@ -208,7 +147,7 @@ def init(init_board=True):
 
         pfd_detected = False
 
-        for board_index in range(MAX_BOARDS):
+        for board_index in range(pfcom.MAX_BOARDS):
             pfcom.write(ioconfig, pfcom.IOCON, board_index)  # configure
 
             if not pfd_detected:
