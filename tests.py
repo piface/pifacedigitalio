@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Some basic tests, could do with improving"""
 import unittest
+import pifacecommon as pfcom
 import pifacedigitalio as pfdio
 
 
@@ -12,7 +13,7 @@ class TestRangedItem(object):
 
     def test_boundary_init(self):
         for i in (min(self.item_range)-1, max(self.item_range)+1):
-            self.assertRaises(pfdio.RangeError, self.item, i)
+            self.assertRaises(pfcom.RangeError, self.item, i)
 
 
 class TestLED(TestRangedItem, unittest.TestCase):
@@ -28,18 +29,6 @@ class TestSwitch(TestRangedItem, unittest.TestCase):
 class TestRelay(TestRangedItem, unittest.TestCase):
     item = pfdio.Relay
     item_range = range(2)
-
-
-class TestItem(unittest.TestCase):
-    def test_item_normal_board_init(self):
-        for i in range(pfdio.MAX_BOARDS):
-            item = pfdio.Item(0, i)
-            self.assertEqual(type(item), pfdio.Item)
-
-    def test_item_boundary_board_init(self):
-        for i in (-1, pfdio.MAX_BOARDS):
-            with self.assertRaises(pfdio.RangeError):
-                pfdio.Item(0, i)
 
 
 class TestDigitalRead(unittest.TestCase):
