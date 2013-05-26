@@ -56,9 +56,10 @@ Examples
     >>> chick1.wobble()      # Turns on relay0 (connected to a robot chicken)
 
 ### Interrupts
-Let's see what the InputFunctionMap does.
+Let's see what the pifacecommon.InputFunctionMap does.
 
-    >>> print(p.InputFunctionMap.__doc__)
+    >>> import pifacecommon
+    >>> print(pifacecommon.InputFunctionMap.__doc__)
     Maps inputs pins to functions.
 
         Use the register method to map inputs to functions.
@@ -87,9 +88,11 @@ Let's see what the InputFunctionMap does.
 
 And using it.
 
-    >>> import pifacedigitalio as p
-    >>> p.init()
-    >>> pfd = p.PiFaceDigital()
+    >>> import pifacecommon
+    >>> import pifacedigitalio
+    >>>
+    >>> pifacedigitalio.init()
+    >>> pfd = pifacedigitalio.PiFaceDigital()
     >>>
     >>> # create two functions
     >>> def toggle_led0(interrupt_bit, input_byte):
@@ -100,16 +103,19 @@ And using it.
     ...     pfd.leds[7].toggle()
     ...     return False  # stop waiting for interrupts (default behaviour)
     ...
-    >>> ifm = p.InputFunctionMap()
+    >>> ifm = pifacecommon.InputFunctionMap()
+    >>>
+    >>> # when switch 0 (input0) is pressed, run toggle_led0
     >>> ifm.register(
             input_num=0,
-            direction=p.IN_EVENT_DIR_ON,
+            direction=pifacecommon.IN_EVENT_DIR_ON,
             callback=toggle_led0,
-            board_num=0)
+            board_num=0)  # optional
+    >>>
+    >>> # when switch 1 (input1) is un-pressed, run toggle_led7
     >>> ifm.register(
             input_num=1,
-            direction=p.IN_EVENT_DIR_ON,
-            callback=toggle_led7,
-            board_num=0)
+            direction=pifacecommon.IN_EVENT_DIR_OFF,
+            callback=toggle_led7)
     >>>
-    >>> p.wait_for_input(ifm)  # will return after pressing input 1
+    >>> pifacedigitalio.wait_for_input(ifm)  # will return after un-pressing switch 1
