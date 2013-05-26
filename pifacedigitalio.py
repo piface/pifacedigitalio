@@ -250,7 +250,7 @@ def _call_mapped_input_functions(input_func_map):
     function.
     Returns whether the wait_for_input function should keep waiting for input
     """
-    for board_i in range(MAX_BOARDS):
+    for board_i in range(pfcom.MAX_BOARDS):
         this_board_ifm = [m for m in input_func_map if m['board'] == board_i]
 
         # read the interrupt status of this PiFace board
@@ -288,13 +288,13 @@ def clear_interrupts():
     """Clears the interrupt flags by 'pfcom.read'ing the capture register
     on all boards
     """
-    for i in range(MAX_BOARDS):
+    for i in range(pfcom.MAX_BOARDS):
         pfcom.read(pfcom.INTCAPB, i)
 
 
 def enable_interrupts():
     # enable interrupts
-    for board_index in range(MAX_BOARDS):
+    for board_index in range(pfcom.MAX_BOARDS):
         pfcom.write(0xff, pfcom.GPINTENB, board_index)
 
     try:
@@ -354,5 +354,5 @@ def disable_interrupts():
         unexport_file.write(str(GPIO_INTERRUPT_PIN))
 
     # disable the interrupt
-    for board_index in range(MAX_BOARDS):
+    for board_index in range(pfcom.MAX_BOARDS):
         pfcom.write(0, pfcom.GPINTENB, board_index)
