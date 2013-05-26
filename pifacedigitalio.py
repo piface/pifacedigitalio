@@ -112,13 +112,13 @@ class InputFunctionMap(list):
     wait_for_input loop should continue (True is continue).
 
     Register Parameters (*optional):
-    input_index - input pin number
-    direction   - direction of change
-                        IN_EVENT_DIR_ON
-                        IN_EVENT_DIR_OFF
-                        IN_EVENT_DIR_BOTH
-    callback    - function to run when interrupt is detected
-    board*      - what PiFace digital board to check
+    input_num  - input pin number
+    direction  - direction of change
+                     IN_EVENT_DIR_ON
+                     IN_EVENT_DIR_OFF
+                     IN_EVENT_DIR_BOTH
+    callback   - function to run when interrupt is detected
+    board_num* - what PiFace digital board to check
 
     Example:
     def my_callback(interrupted_bit, input_byte):
@@ -127,12 +127,13 @@ class InputFunctionMap(list):
         print(bin(interrupted_bit), bin(input_byte))
         return True  # keep waiting for interrupts
     """
-    def register(self, input_index, direction, callback, board_index=0):
+    def register(self, input_num, direction, callback, board_num=0):
         self.append({
-            'index': input_index,
+            'input_num': input_num,
             'direction': direction,
             'callback': callback,
-            'board': board_index})
+            'board_num': board_num,
+        })
 
 
 def init(init_board=True):
@@ -251,7 +252,7 @@ def _call_mapped_input_functions(input_func_map):
     Returns whether the wait_for_input function should keep waiting for input
     """
     for board_i in range(pfcom.MAX_BOARDS):
-        this_board_ifm = [m for m in input_func_map if m['board'] == board_i]
+        this_board_ifm = [m for m in input_func_map if m['board_num'] == board_i]
 
         # read the interrupt status of this PiFace board
         # interrupt bit (int_bit) - bit map showing what caused the interrupt
@@ -268,7 +269,7 @@ def _call_mapped_input_functions(input_func_map):
 
         # for each mapping (on this board) see if we have a callback
         for mapping in this_board_ifm:
-            if int_bit_num == mapping['index'] and \
+            if int_bit_num == mapping['input_num'] and \
                     (mapping['direction'] is None or
                         direction == mapping['direction']):
                 # run the callback

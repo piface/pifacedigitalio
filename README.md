@@ -60,7 +60,7 @@ Let's see what the InputFunctionMap does.
 
     >>> print(p.InputFunctionMap.__doc__)
     Maps inputs pins to functions.
-    
+
         Use the register method to map inputs to functions.
 
         Each function is passed the interrupt bit map as a byte and the input
@@ -68,13 +68,13 @@ Let's see what the InputFunctionMap does.
         wait_for_input loop should continue (True is continue).
 
         Register Parameters (*optional):
-        input_index - input pin number
-        direction   - direction of change
-                        IN_EVENT_DIR_ON
-                        IN_EVENT_DIR_OFF
-                        IN_EVENT_DIR_BOTH
-        callback    - function to run when interrupt is detected
-        board*      - what PiFace digital board to check
+        input_num  - input pin number
+        direction  - direction of change
+                         IN_EVENT_DIR_ON
+                         IN_EVENT_DIR_OFF
+                         IN_EVENT_DIR_BOTH
+        callback   - function to run when interrupt is detected
+        board_num* - what PiFace digital board to check
 
         Example:
         def my_callback(interrupted_bit, input_byte):
@@ -102,14 +102,14 @@ And using it.
     ...
     >>> ifm = p.InputFunctionMap()
     >>> ifm.register(
-            index=0,
+            input_num=0,
             direction=p.IN_EVENT_DIR_ON,
             callback=toggle_led0,
-            board=0)
+            board_num=0)
     >>> ifm.register(
-            index=1,
+            input_num=1,
             direction=p.IN_EVENT_DIR_ON,
             callback=toggle_led7,
-            board=0)
+            board_num=0)
     >>>
     >>> p.wait_for_input(ifm)  # will return after pressing input 1
