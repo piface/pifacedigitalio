@@ -20,6 +20,11 @@ import subprocess
 import time
 import pifacecommon as pfcom
 
+# access to pifacecommon functions for consistency with emulator
+from pifacecommon import get_bit_mask, get_bit_num, read_bit, \
+    write_bit ,read, write, spisend
+
+
 # /dev/spidev<bus>.<chipselect>
 SPI_BUS = 0
 SPI_CHIP_SELECT = 0
