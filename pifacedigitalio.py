@@ -143,7 +143,7 @@ def init(init_board=True):
     if init_board:
          # set up each board
         ioconfig = pfcom.BANK_OFF | \
-            pfcom.INT_MIRROR_OFF | pfcom.SEQOP_ON | pfcom.DISSLW_OFF | \
+            pfcom.INT_MIRROR_OFF | pfcom.SEQOP_OFF | pfcom.DISSLW_OFF | \
             pfcom.HAEN_ON | pfcom.ODR_OFF | pfcom.INTPOL_LOW
 
         pfd_detected = False
