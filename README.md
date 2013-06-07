@@ -3,7 +3,8 @@ pifacedigitalio
 
 The PiFace Digital Input/Output module.
 
-*The PiFace Digital IO module uses Python 3 and is incompatible with Python 2*
+**The PiFace Digital IO module uses Python 3 and is incompatible with Python 2
+(You have to type python3 instead of python)**
 
 Installation
 ============
@@ -15,6 +16,7 @@ Examples
 =======
 ### Basic usage
 
+    $ python3
     >>> import pifacedigitalio as p
     >>> p.init()       # initialises the PiFace Digital board 
     >>> p.init(False)  # same as above w/out resetting ports
@@ -58,6 +60,7 @@ Examples
 ### Interrupts
 Let's see what the pifacecommon.InputFunctionMap does.
 
+    $ python3
     >>> import pifacecommon
     >>> print(pifacecommon.InputFunctionMap.__doc__)
     Maps inputs pins to functions.
@@ -88,6 +91,7 @@ Let's see what the pifacecommon.InputFunctionMap does.
 
 And using it.
 
+    $ python3
     >>> import pifacecommon
     >>> import pifacedigitalio
     >>>

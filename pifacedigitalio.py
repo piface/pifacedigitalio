@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """Provides I/O methods for interfacing with PiFace Digital (for Raspberry Pi)
 Copyright (C) 2013 Thomas Preston <thomasmarkpreston@gmail.com>
 
