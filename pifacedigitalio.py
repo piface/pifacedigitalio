@@ -21,10 +21,6 @@ import subprocess
 import time
 import pifacecommon as pfcom
 
-# access to pifacecommon functions for consistency with emulator
-from pifacecommon import get_bit_mask, get_bit_num, read_bit, \
-    write_bit ,read, write, spisend
-
 
 # /dev/spidev<bus>.<chipselect>
 SPI_BUS = 0
@@ -78,6 +74,8 @@ class PiFaceDigital(object):
     """A single PiFace Digital board"""
     def __init__(self, board_num=0):
         self.board_num = board_num
+        self.input_port = pfcom.DigitalInputPort(INPUT_PORT, board_num)
+        self.output_port = pfcom.DigitalOutputPort(OUTPUT_PORT, board_num)
         self.input_pins = [pfcom.DigitalInputItem(i, INPUT_PORT, board_num) \
                 for i in range(8)]
         self.output_pins = [pfcom.DigitalOutputItem(i, OUTPUT_PORT, board_num) \
@@ -122,6 +120,7 @@ def deinit():
     pfcom.deinit()
 
 
+# wrapper functions for backwards compatibility
 def digital_read(pin_num, board_num=0):
     """Returns the status of the input pin specified.
     1 is active
