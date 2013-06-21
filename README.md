@@ -1,13 +1,20 @@
 pifacedigitalio
 ===============
+The PiFace Digital Input/Output module ([PyPI](https://pypi.python.org/pypi/pifacedigitalio/)).
 
-The PiFace Digital Input/Output module.
+pifacedigitalio uses **Python 3** and is incompatible with 
+Python 2. *You have to start Python 3 using `python3` and not `python`.*
 
-The PiFace Digital IO module uses **Python 3** and is incompatible with 
-Python 2. *You have to type `python3` instead of `python` in the command line.*
 
-About
-=====
+Installation
+============
+    $ sudo ./install.sh
+
+You may need to reboot for interrupts to work.
+
+
+About PiFace Digital
+====================
 PiFace Digital has eight inputs, eight outputs, eight LED's, two relays and
 four switches.
 
@@ -49,12 +56,6 @@ Relay Deactivated
 The eight input pins detect a connection to ground (provided as the ninth pin).
 The four switches are connected in parallel to the first four input pins. The
 inputs are *pulled up* to 5V. This can be turned off so that the inputs float.
-
-Installation
-============
-    $ sudo ./install.sh
-
-You may need to reboot for interrupts to work.
 
 
 Examples

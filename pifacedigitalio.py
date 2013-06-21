@@ -41,7 +41,7 @@ class NoPiFaceDigitalDetectedError(Exception):
 
 
 class LED(pfcom.DigitalOutputItem):
-    """An LED on PiFace Digital"""
+    """An LED on a PiFace Digital board."""
     def __init__(self, led_num, board_num=0):
         if led_num < 0 or led_num > 7:
             raise pfcom.RangeError(
@@ -51,7 +51,7 @@ class LED(pfcom.DigitalOutputItem):
 
 
 class Relay(pfcom.DigitalOutputItem):
-    """A relay on PiFace Digital"""
+    """A relay on a PiFace Digital board."""
     def __init__(self, relay_num, board_num=0):
         if relay_num < 0 or relay_num > 1:
             raise pfcom.RangeError(
@@ -61,7 +61,7 @@ class Relay(pfcom.DigitalOutputItem):
 
 
 class Switch(pfcom.DigitalInputItem):
-    """A switch on PiFace Digital"""
+    """A switch on a PiFace Digital board."""
     def __init__(self, switch_num, board_num=0):
         if switch_num < 0 or switch_num > 3:
             raise pfcom.RangeError(
@@ -71,22 +71,30 @@ class Switch(pfcom.DigitalInputItem):
 
 
 class PiFaceDigital(object):
-    """A single PiFace Digital board"""
+    """A PiFace Digital board."""
     def __init__(self, board_num=0):
         self.board_num = board_num
         self.input_port = pfcom.DigitalInputPort(INPUT_PORT, board_num)
         self.output_port = pfcom.DigitalOutputPort(OUTPUT_PORT, board_num)
-        self.input_pins = [pfcom.DigitalInputItem(i, INPUT_PORT, board_num) \
-                for i in range(8)]
-        self.output_pins = [pfcom.DigitalOutputItem(i, OUTPUT_PORT, board_num) \
-                for i in range(8)]
+        self.input_pins = [
+            pfcom.DigitalInputItem(i, INPUT_PORT, board_num) for i in range(8)
+        ]
+        self.output_pins = [
+            pfcom.DigitalOutputItem(
+                i, OUTPUT_PORT, board_num) for i in range(8)
+        ]
         self.leds = [LED(i, board_num) for i in range(8)]
         self.relays = [Relay(i, board_num) for i in range(2)]
         self.switches = [Switch(i, board_num) for i in range(4)]
 
 
 def init(init_board=True):
-    """Initialises the PiFace Digital board"""
+    """Initialises all PiFace Digital boards.
+
+    :param init_board: Initialise each board (default: True)
+    :type init_board: boolean
+    :raises: :class:`NoPiFaceDigitalDetectedError`
+    """
     pfcom.init(SPI_BUS, SPI_CHIP_SELECT)
 
     if init_board:
@@ -105,9 +113,9 @@ def init(init_board=True):
                     pfd_detected = True
 
             pfcom.write(0, pfcom.GPIOA, board_index)  # clear port A
-            pfcom.write(0, pfcom.IODIRA, board_index)  # set port A as outputs
-            pfcom.write(0xff, pfcom.IODIRB, board_index)  # set port B as inputs
-            pfcom.write(0xff, pfcom.GPPUB, board_index)  # set port B pullups on
+            pfcom.write(0, pfcom.IODIRA, board_index)  # port A as outputs
+            pfcom.write(0xff, pfcom.IODIRB, board_index)  # port B as inputs
+            pfcom.write(0xff, pfcom.GPPUB, board_index)  # port B pullups on
 
         if not pfd_detected:
             raise NoPiFaceDigitalDetectedError(
@@ -122,38 +130,83 @@ def deinit():
 
 # wrapper functions for backwards compatibility
 def digital_read(pin_num, board_num=0):
-    """Returns the status of the input pin specified.
-    1 is active
-    0 is inactive
-    Note: This function is for familiarality with Arduino users
+    """Returns the value of the input pin specified.
+
+    .. note:: This function is for familiarality with users of other types of
+       IO board. Consider using :func:`pifacecommon.core.read_bit` instead.
+
+       >>> pifacecommon.core.read_bit(pin_num, INPUT_PORT, board_num)
+
+    :param pin_num: The pin number to read.
+    :type pin_num: int
+    :param board_num: The board to read from (default: 0)
+    :type board_num: int
+    :returns: int -- value of the pin
     """
     return pfcom.read_bit(pin_num, INPUT_PORT, board_num) ^ 1
 
 
 def digital_write(pin_num, value, board_num=0):
-    """Writes the value specified to the output pin
-    1 is active
-    0 is inactive
-    Note: This function is for familiarality with Arduino users
+    """Writes the value to the input pin specified.
+
+    .. note:: This function is for familiarality with users of other types of
+       IO board. Consider using :func:`pifacecommon.core.write_bit` instead.
+
+       >>> pifacecommon.core.write_bit(value, pin_num, OUTPUT_PORT, board_num)
+
+    :param pin_num: The pin number to write to.
+    :type pin_num: int
+    :param value: The value to write.
+    :type value: int
+    :param board_num: The board to read from (default: 0)
+    :type board_num: int
     """
     pfcom.write_bit(value, pin_num, OUTPUT_PORT, board_num)
 
 
 def digital_read_pullup(pin_num, board_num=0):
+    """Returns the value of the input pullup specified.
+
+    .. note:: This function is for familiarality with users of other types of
+       IO board. Consider using :func:`pifacecommon.core.read_bit` instead.
+
+       >>> pifacecommon.core.read_bit(pin_num, INPUT_PULLUP, board_num)
+
+    :param pin_num: The pin number to read.
+    :type pin_num: int
+    :param board_num: The board to read from (default: 0)
+    :type board_num: int
+    :returns: int -- value of the pin
+    """
     return pfcom.read_bit(pin_num, INPUT_PULLUP, board_num)
 
 
 def digital_write_pullup(pin_num, value, board_num=0):
+    """Writes the value to the input pullup specified.
+
+    .. note:: This function is for familiarality with users of other types of
+       IO board. Consider using :func:`pifacecommon.core.write_bit` instead.
+
+       >>> pifacecommon.core.write_bit(value, pin_num, INPUT_PULLUP, board_num)
+
+    :param pin_num: The pin number to write to.
+    :type pin_num: int
+    :param value: The value to write.
+    :type value: int
+    :param board_num: The board to read from (default: 0)
+    :type board_num: int
+    """
     pfcom.write_bit(value, pin_num, INPUT_PULLUP, board_num)
 
 
 # interrupts
 def wait_for_input(input_func_map=None, timeout=None):
-    """Waits for an input port event (change)
+    """Waits for an port event (change) and runs the callback function tied to
+    that.
 
-    Paramaters:
-    input_func_map - An InputFunctionMap object describing callbacks
-    timeout        - How long we should wait before giving up and exiting the
-                     function
+    :param input_func_map: An InputFunctionMap object describing callbacks.
+    :type input_func_map: :class:`pifacecommon.interrupts.InputFunctionMap`
+    :param timeout: How long we should wait before giving up.
+    :type timeout: int
     """
     pfcom.wait_for_interrupt(INPUT_PORT, input_func_map, timeout)
