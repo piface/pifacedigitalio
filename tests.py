@@ -117,11 +117,13 @@ class TestPiFaceDigitalInput(unittest.TestCase):
             input(
                 "Hold switch {a} and {b}, then press enter.".format(a=a, b=b))
             self.assertEqual(self.pfd.switches[a].value, 1)
-            self.assertEqual(self.pfd.input_pins[a].value, 1)
-
             self.assertEqual(self.pfd.switches[a].value, 1)
+
+            # while we're here, test the input pins
+            self.assertEqual(self.pfd.input_pins[a].value, 1)
             self.assertEqual(self.pfd.input_pins[a].value, 1)
 
+            # and the input port
             bit_pattern = (1 << a) ^ (1 << b)
             self.assertEqual(self.pfd.input_port.value, bit_pattern)
 
