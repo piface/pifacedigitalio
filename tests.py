@@ -23,7 +23,7 @@ class TestRangedItem(object):
         boundaries = (min(self.item_range) - 1, max(self.item_range) + 1)
         for i in boundaries:
             self.assertRaises(
-                pifacecommon.errors.RangeError,
+                pifacecommon.core.RangeError,
                 self.item_type,
                 i
             )
@@ -116,10 +116,14 @@ class TestPiFaceDigitalInput(unittest.TestCase):
         for a, b in ((0, 2), (1, 3)):
             input(
                 "Hold switch {a} and {b}, then press enter.".format(a=a, b=b))
-            switchA = self.pfd.switches[a].value
-            switchB = self.pfd.switches[b].value
-            self.assertEqual(switchA, 1)
-            self.assertEqual(switchB, 1)
+            self.assertEqual(self.pfd.switches[a].value, 1)
+            self.assertEqual(self.pfd.input_pins[a].value, 1)
+
+            self.assertEqual(self.pfd.switches[a].value, 1)
+            self.assertEqual(self.pfd.input_pins[a].value, 1)
+
+            bit_pattern = (1 << a) ^ (1 << b)
+            self.assertEqual(self.pfd.input_port.value, bit_pattern)
 
     def test_input_pins(self):
         if TEST_INPUT_PORT:

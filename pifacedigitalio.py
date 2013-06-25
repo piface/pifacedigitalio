@@ -44,7 +44,7 @@ class LED(pfcom.DigitalOutputItem):
     """An LED on a PiFace Digital board."""
     def __init__(self, led_num, board_num=0):
         if led_num < 0 or led_num > 7:
-            raise pfcom.errors.RangeError(
+            raise pfcom.core.RangeError(
                 "Specified LED index (%d) out of range." % led_num)
         else:
             super().__init__(led_num, OUTPUT_PORT, board_num)
@@ -54,7 +54,7 @@ class Relay(pfcom.DigitalOutputItem):
     """A relay on a PiFace Digital board."""
     def __init__(self, relay_num, board_num=0):
         if relay_num < 0 or relay_num > 1:
-            raise pfcom.errors.RangeError(
+            raise pfcom.core.RangeError(
                 "Specified relay index (%d) out of range." % relay_num)
         else:
             super().__init__(relay_num, OUTPUT_PORT, board_num)
@@ -64,7 +64,7 @@ class Switch(pfcom.DigitalInputItem):
     """A switch on a PiFace Digital board."""
     def __init__(self, switch_num, board_num=0):
         if switch_num < 0 or switch_num > 3:
-            raise pfcom.errors.RangeError(
+            raise pfcom.core.RangeError(
                 "Specified switch index (%d) out of range." % switch_num)
         else:
             super().__init__(switch_num, INPUT_PORT, board_num)
