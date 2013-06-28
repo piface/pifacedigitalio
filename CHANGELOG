@@ -1,0 +1,9 @@
+Change Log
+==========
+
+v1.2
+------
+- Started using a change log!
+- Removed install.sh, everything is now handled by setup.py.
+- Updated docs.
+- Added some examples.
