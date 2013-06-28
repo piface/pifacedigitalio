@@ -12,12 +12,20 @@ ground. This offers greater flexibility since the PiFace can control devices
 that operate using different voltages. The ninth pin provides 5V for connecting
 circuits to.
 
-An example circuit is (\ **R**\ esistor, **L**\ ED, **O**\ utput pin, **5**\ V pin)::
+Here is PiFace Digital with a simple circuit connected:
 
-     +-R-L--+
-    OOOOOOOO5
+.. image:: ../images/pifacedigital_basic_led.png
+    :width: 320px
+    :height: 240px
+    :align: center
+    :alt: An image of PiFace Digital with a simple circuit connected.
 
-.. todo:: Don't use ASCII art
+And the code::
+
+    >>> import pifacedigitalio
+    >>> pifacedigitalio.init()
+    >>> pifacedigital = pifacedigitalio.PiFaceDigital()
+    >>> pifacedigital.output_pins[6].turn_on()
 
 LEDs
 ----
@@ -25,9 +33,9 @@ The LED's are connected in parallel to each of the outputs. This means that
 when you set output pin 4 high, LED 4 illuminates.
 
     >>> import pifacedigitalio
-    >>> pfd = pifacedigitalio.PiFaceDigital()
-    >>> pfd.output_pins[4].turn_on()  # this command does the same thing...
-    >>> pfd.leds[4].turn_on()  # ...as this command
+    >>> pifacedigital = pifacedigitalio.PiFaceDigital()
+    >>> pifacedigital.output_pins[4].turn_on()  # this command does the same thing...
+    >>> pifacedigital.leds[4].turn_on()  # ...as this command
 
 Relays
 ------
@@ -35,10 +43,10 @@ The two Relays are connected in parallel to output pins 0 and 1 respectively.
 When you set output pin 0 high, LED 0 illuminated and Relay 0 activates.
 
     >>> import pifacedigitalio
-    >>> pfd = pifacedigitalio.PiFaceDigital()
-    >>> pfd.output_pins[0].turn_on()  # this command does the same thing...
-    >>> pfd.leds[0].turn_on()  # ...as this command...
-    >>> pfd.relays[0].turn_on()  # ...and this command...
+    >>> pifacedigital = pifacedigitalio.PiFaceDigital()
+    >>> pifacedigital.output_pins[0].turn_on()  # this command does the same thing...
+    >>> pifacedigital.leds[0].turn_on()  # ...as this command...
+    >>> pifacedigital.relays[0].turn_on()  # ...and this command...
 
 When activated, the relay bridges the top and middle pins. When deactivated the
 bottom two are connected.
@@ -62,29 +70,22 @@ The four switches are connected in parallel to the first four input pins. The
 inputs are *pulled up* to 5V. This can be turned off so that the inputs float.
 
     >>> import pifacedigitalio
-    >>> pfd = pifacedigitalio.PiFaceDigital()
+    >>> pifacedigital = pifacedigitalio.PiFaceDigital()
     >>> 
     >>> # without anything pressed
-    >>> pfd.input_port.value
+    >>> pifacedigital.input_port.value
     0
-    >>> pfd.input_pins[0].value
+    >>> pifacedigital.input_pins[0].value
     0
-    >>> pfd.switches[0].value
+    >>> pifacedigital.switches[0].value
     0
     >>> 
     >>> # pressing the third switch
-    >>> pfd.input_port.value
+    >>> pifacedigital.input_port.value
     8
-    >>> bin(pfd.input_port.value)
+    >>> bin(pifacedigital.input_port.value)
     0b100
-    >>> pfd.input_pins[2].value  # this command is the same as...
+    >>> pifacedigital.input_pins[2].value  # this command is the same as...
     1
-    >>> pfd.switches[2].value  # ...this command
+    >>> pifacedigital.switches[2].value  # ...this command
     1
-
-An example circuit is (\ **S**\ witch, **I**\ nput pin, **G**\ ND pin)::
-
-    IIIIIIIIG
-     +---S--+
-
-.. todo:: Don't use ASCII art

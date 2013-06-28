@@ -6,7 +6,7 @@ To install pifacedigitalio with minimal fuss::
 
     $ git clone https://github.com/piface/pifacedigitalio.git
     $ cd pifacedigitalio
-    $ sudo ./install.sh
+    $ sudo python3 setup.py install
 
 Then reboot.
 

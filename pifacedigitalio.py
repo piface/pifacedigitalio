@@ -41,7 +41,9 @@ class NoPiFaceDigitalDetectedError(Exception):
 
 
 class LED(pfcom.DigitalOutputItem):
-    """An LED on a PiFace Digital board."""
+    """An LED on a PiFace Digital board. Inherits
+    :class:`pifacecommon.core.DigitalOutputItem`.
+    """
     def __init__(self, led_num, board_num=0):
         if led_num < 0 or led_num > 7:
             raise pfcom.core.RangeError(
@@ -51,7 +53,9 @@ class LED(pfcom.DigitalOutputItem):
 
 
 class Relay(pfcom.DigitalOutputItem):
-    """A relay on a PiFace Digital board."""
+    """A relay on a PiFace Digital board. Inherits
+    :class:`pifacecommon.core.DigitalOutputItem`.
+    """
     def __init__(self, relay_num, board_num=0):
         if relay_num < 0 or relay_num > 1:
             raise pfcom.core.RangeError(
@@ -61,7 +65,9 @@ class Relay(pfcom.DigitalOutputItem):
 
 
 class Switch(pfcom.DigitalInputItem):
-    """A switch on a PiFace Digital board."""
+    """A switch on a PiFace Digital board. Inherits
+    :class:`pifacecommon.core.DigitalInputItem`.
+    """
     def __init__(self, switch_num, board_num=0):
         if switch_num < 0 or switch_num > 3:
             raise pfcom.core.RangeError(
@@ -71,7 +77,28 @@ class Switch(pfcom.DigitalInputItem):
 
 
 class PiFaceDigital(object):
-    """A PiFace Digital board."""
+    """A PiFace Digital board.
+
+    :attribute: board_num -- The board number.
+    :attribute: input_port -- See :class:`pifacecommon.core.DigitalInputPort`.
+    :attribute: output_port -- See
+        :class:`pifacecommon.core.DigitalOutputPort`.
+    :attribute: input_pins -- list containing
+        :class:`pifacecommon.core.DigitalInputPin`.
+    :attribute: output_pins -- list containing
+        :class:`pifacecommon.core.DigitalOutputPin`.
+    :attribute: leds -- list containing :class:`LED`.
+    :attribute: relays -- list containing :class:`Relay`.
+    :attribute: switches -- list containing :class:`Switch`.
+
+    Example:
+
+    >>> pfd = pifacedigitalio.PiFaceDigital()
+    >>> pfd.input_port.value
+    0
+    >>> pfd.output_port.value = 0xAA
+    >>> pfd.leds[5].turn_on()
+    """
     def __init__(self, board_num=0):
         self.board_num = board_num
         self.input_port = pfcom.DigitalInputPort(INPUT_PORT, board_num)
