@@ -49,7 +49,7 @@ class LED(pfcom.DigitalOutputItem):
             raise pfcom.core.RangeError(
                 "Specified LED index (%d) out of range." % led_num)
         else:
-            super().__init__(led_num, OUTPUT_PORT, board_num)
+            super(LED, self).__init__(led_num, OUTPUT_PORT, board_num)
 
 
 class Relay(pfcom.DigitalOutputItem):
@@ -61,7 +61,7 @@ class Relay(pfcom.DigitalOutputItem):
             raise pfcom.core.RangeError(
                 "Specified relay index (%d) out of range." % relay_num)
         else:
-            super().__init__(relay_num, OUTPUT_PORT, board_num)
+            super(Relay, self).__init__(relay_num, OUTPUT_PORT, board_num)
 
 
 class Switch(pfcom.DigitalInputItem):
@@ -73,7 +73,7 @@ class Switch(pfcom.DigitalInputItem):
             raise pfcom.core.RangeError(
                 "Specified switch index (%d) out of range." % switch_num)
         else:
-            super().__init__(switch_num, INPUT_PORT, board_num)
+            super(Switch, self).__init__(switch_num, INPUT_PORT, board_num)
 
 
 class PiFaceDigital(object):
@@ -146,7 +146,7 @@ def init(init_board=True):
 
         if not pfd_detected:
             raise NoPiFaceDigitalDetectedError(
-                "There was no PiFace Digital board detected!"
+                "No PiFace Digital board detected!"
             )
 
 

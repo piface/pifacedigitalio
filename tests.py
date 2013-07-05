@@ -6,6 +6,11 @@ import pifacecommon
 import pifacedigitalio
 
 
+PY3 = sys.version_info.major >= 3
+if not PY3:
+    input = raw_input
+
+
 OUTPUT_RANGE = LED_RANGE = INPUT_RANGE = 8
 SWITCH_RANGE = 4
 RELAY_RANGE = 2

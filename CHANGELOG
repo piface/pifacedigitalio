@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+v1.2.1
+------
+- Supports Python 2.
+- Started using semantic versioning http://semver.org/.
+
 v1.2
 ------
 - Started using a change log!
