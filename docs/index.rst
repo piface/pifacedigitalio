@@ -6,11 +6,8 @@
 Welcome to PiFace Digital I/O's documentation!
 ==============================================
 
-The pifacedigitalio Python module provides functions and classes for interacting
-with PiFace Digital.
-
-.. note:: pifacedigitalio uses **Python 3**. You have to start Python 3 using
-   ``python3`` and not ``python``. See `more <http://docs.python.org/3/whatsnew/3.0.html>`_.
+The pifacedigitalio Python module provides functions and classes for
+interacting with PiFace Digital.
 
 Links:
     - `Blog <http://pifacedigital.wordpress.com/>`_
