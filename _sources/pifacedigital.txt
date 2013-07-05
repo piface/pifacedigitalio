@@ -6,18 +6,18 @@ four switches.
 
 Outputs
 =======
-The eight output pins are located at the top of the board (near the LED's). The
-outputs are open collectors; they can be thought of as switches connecting to
-ground. This offers greater flexibility since the PiFace can control devices
+The eight output pins are located at the top of the board (near the LEDs). The
+outputs are open collectors, they can be thought of as switches connecting to
+ground. This offers greater flexibility so that PiFace Digital can control devices
 that operate using different voltages. The ninth pin provides 5V for connecting
 circuits to.
 
 Here is PiFace Digital with a simple circuit connected:
 
-.. image:: ../images/pifacedigital_basic_led.png
+.. image:: images/pifacedigital_basic_led.png
     :width: 320px
-    :align: center
     :height: 240px
+    :align: center
     :alt: An image of PiFace Digital with a simple circuit connected.
 
 And the code::
@@ -40,7 +40,7 @@ when you set output pin 4 high, LED 4 illuminates.
 Relays
 ------
 The two Relays are connected in parallel to output pins 0 and 1 respectively.
-When you set output pin 0 high, LED 0 illuminated and Relay 0 activates.
+When you set output pin 0 high, LED 0 illuminates and Relay 0 activates.
 
     >>> import pifacedigitalio
     >>> pifacedigital = pifacedigitalio.PiFaceDigital()
@@ -71,7 +71,7 @@ inputs are *pulled up* to 5V. This can be turned off so that the inputs float.
 
     >>> import pifacedigitalio
     >>> pifacedigital = pifacedigitalio.PiFaceDigital()
-    >>> 
+    >>>
     >>> # without anything pressed
     >>> pifacedigital.input_port.value
     0
@@ -79,7 +79,7 @@ inputs are *pulled up* to 5V. This can be turned off so that the inputs float.
     0
     >>> pifacedigital.switches[0].value
     0
-    >>> 
+    >>>
     >>> # pressing the third switch
     >>> pifacedigital.input_port.value
     8
