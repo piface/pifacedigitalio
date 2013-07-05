@@ -55,7 +55,7 @@ setup(
     description='The PiFace Digital I/O module.',
     author='Thomas Preston',
     author_email='thomasmarkpreston@gmail.com',
-    url='https://github.com/piface/pifacedigitalio',
+    url='http://piface.github.io/pifacecommon/index.html',
     py_modules=['pifacedigitalio'],
     long_description=open('README.md').read() + open('CHANGELOG').read(),
     classifiers=[
