@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Some basic tests, could do with improving"""
 import sys
 import unittest
+import threading
 import pifacecommon
 import pifacedigitalio
 
@@ -9,6 +9,21 @@ import pifacedigitalio
 PY3 = sys.version_info.major >= 3
 if not PY3:
     input = raw_input
+
+    from time import sleep
+
+    class Barrier(object):
+        def __init__(self, n, timeout=None):
+            self.count = 0
+            self.n = n
+            self.timeout = timeout
+
+        def wait(self):
+            self.count += 1
+            while self.count < self.n:
+                sleep(0.0001)
+
+    threading.Barrier = Barrier
 
 
 OUTPUT_RANGE = LED_RANGE = INPUT_RANGE = 8
@@ -54,12 +69,16 @@ class TestRelay(TestRangedItem, unittest.TestCase):
 
 class TestDigitalRead(unittest.TestCase):
     def setUp(self):
+        pifacedigitalio.init()
         # function is supposed to return 1
         pifacecommon.read_bit = lambda pin, port, board: 1
 
     def test_flip_bit(self):
         # should flip 1 to 0
         self.assertEqual(pifacedigitalio.digital_read(0, 0), 0)
+
+    def tearDown(self):
+        pifacedigitalio.deinit()
 
 
 class TestPiFaceDigitalOutput(unittest.TestCase):
@@ -146,6 +165,33 @@ class TestPiFaceDigitalInput(unittest.TestCase):
             self.assertEqual(self.pfd.input_port.value, 0x55)
 
     def tearDown(self):
+        pifacedigitalio.deinit()
+
+
+class TestInterrupts(unittest.TestCase):
+    def setUp(self):
+        pifacedigitalio.init()
+        self.barrier = threading.Barrier(2, timeout=5)
+        self.test_passed = False
+        self.direction = pifacedigitalio.IODIR_ON
+        self.listener = pifacedigitalio.InputEventListener()
+        self.listener.register(0, self.direction, self.interrupts_test_helper)
+
+    def test_interrupt(self):
+        self.listener.activate()
+        self.barrier.wait()
+        self.assertTrue(self.test_passed)
+
+    def interrupts_test_helper(self, event):
+        self.assertEqual(event.interrupt_flag, 0x1)
+        self.assertEqual(event.interrupt_capture, 0xfe)
+        self.assertEqual(event.pin_num, 0)
+        self.assertEqual(event.direction, self.direction)
+        self.test_passed = True
+        self.barrier.wait()
+
+    def tearDown(self):
+        self.listener.deactivate()
         pifacedigitalio.deinit()
 
 

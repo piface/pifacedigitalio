@@ -19,7 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import select
 import subprocess
 import time
-import pifacecommon as pfcom
+import pifacecommon
+from pifacecommon.interrupts import (IODIR_ON, IODIR_OFF, IODIR_BOTH)
 
 
 # /dev/spidev<bus>.<chipselect>
@@ -27,9 +28,9 @@ SPI_BUS = 0
 SPI_CHIP_SELECT = 0
 
 # some easier to remember/read values
-OUTPUT_PORT = pfcom.GPIOA
-INPUT_PORT = pfcom.GPIOB
-INPUT_PULLUP = pfcom.GPPUB
+OUTPUT_PORT = pifacecommon.core.GPIOA
+INPUT_PORT = pifacecommon.core.GPIOB
+INPUT_PULLUP = pifacecommon.core.GPPUB
 
 
 class InitError(Exception):
@@ -40,37 +41,37 @@ class NoPiFaceDigitalDetectedError(Exception):
     pass
 
 
-class LED(pfcom.DigitalOutputItem):
+class LED(pifacecommon.core.DigitalOutputItem):
     """An LED on a PiFace Digital board. Inherits
     :class:`pifacecommon.core.DigitalOutputItem`.
     """
     def __init__(self, led_num, board_num=0):
         if led_num < 0 or led_num > 7:
-            raise pfcom.core.RangeError(
+            raise pifacecommon.core.RangeError(
                 "Specified LED index (%d) out of range." % led_num)
         else:
             super(LED, self).__init__(led_num, OUTPUT_PORT, board_num)
 
 
-class Relay(pfcom.DigitalOutputItem):
+class Relay(pifacecommon.core.DigitalOutputItem):
     """A relay on a PiFace Digital board. Inherits
     :class:`pifacecommon.core.DigitalOutputItem`.
     """
     def __init__(self, relay_num, board_num=0):
         if relay_num < 0 or relay_num > 1:
-            raise pfcom.core.RangeError(
+            raise pifacecommon.core.RangeError(
                 "Specified relay index (%d) out of range." % relay_num)
         else:
             super(Relay, self).__init__(relay_num, OUTPUT_PORT, board_num)
 
 
-class Switch(pfcom.DigitalInputItem):
+class Switch(pifacecommon.core.DigitalInputItem):
     """A switch on a PiFace Digital board. Inherits
     :class:`pifacecommon.core.DigitalInputItem`.
     """
     def __init__(self, switch_num, board_num=0):
         if switch_num < 0 or switch_num > 3:
-            raise pfcom.core.RangeError(
+            raise pifacecommon.core.RangeError(
                 "Specified switch index (%d) out of range." % switch_num)
         else:
             super(Switch, self).__init__(switch_num, INPUT_PORT, board_num)
@@ -101,18 +102,36 @@ class PiFaceDigital(object):
     """
     def __init__(self, board_num=0):
         self.board_num = board_num
-        self.input_port = pfcom.DigitalInputPort(INPUT_PORT, board_num)
-        self.output_port = pfcom.DigitalOutputPort(OUTPUT_PORT, board_num)
+        self.input_port = \
+            pifacecommon.core.DigitalInputPort(INPUT_PORT, board_num)
+        self.output_port = \
+            pifacecommon.core.DigitalOutputPort(OUTPUT_PORT, board_num)
         self.input_pins = [
-            pfcom.DigitalInputItem(i, INPUT_PORT, board_num) for i in range(8)
+            pifacecommon.core.DigitalInputItem(i, INPUT_PORT, board_num)
+            for i in range(8)
         ]
         self.output_pins = [
-            pfcom.DigitalOutputItem(
+            pifacecommon.core.DigitalOutputItem(
                 i, OUTPUT_PORT, board_num) for i in range(8)
         ]
         self.leds = [LED(i, board_num) for i in range(8)]
         self.relays = [Relay(i, board_num) for i in range(2)]
         self.switches = [Switch(i, board_num) for i in range(4)]
+
+
+class InputEventListener(pifacecommon.interrupts.PortEventListener):
+    """Listens for events on the input port and calls the mapped callback
+    functions.
+
+    >>> def print_flag(event):
+    ...     print(event.interrupt_flag)
+    ...
+    >>> listener = pifacedigitalio.InputEventListener()
+    >>> listener.register(0, pifacedigitalio.IODIR_ON, print_flag)
+    >>> listener.activate()
+    """
+    def __init__(self):
+        super(InputEventListener, self).__init__(INPUT_PORT)
 
 
 def init(init_board=True):
@@ -122,27 +141,39 @@ def init(init_board=True):
     :type init_board: boolean
     :raises: :class:`NoPiFaceDigitalDetectedError`
     """
-    pfcom.init(SPI_BUS, SPI_CHIP_SELECT)
+    pifacecommon.core.init(SPI_BUS, SPI_CHIP_SELECT)
 
     if init_board:
          # set up each board
-        ioconfig = pfcom.BANK_OFF | \
-            pfcom.INT_MIRROR_OFF | pfcom.SEQOP_OFF | pfcom.DISSLW_OFF | \
-            pfcom.HAEN_ON | pfcom.ODR_OFF | pfcom.INTPOL_LOW
+        ioconfig = (
+            pifacecommon.core.BANK_OFF |
+            pifacecommon.core.INT_MIRROR_OFF |
+            pifacecommon.core.SEQOP_OFF |
+            pifacecommon.core.DISSLW_OFF |
+            pifacecommon.core.HAEN_ON |
+            pifacecommon.core.ODR_OFF |
+            pifacecommon.core.INTPOL_LOW
+        )
 
         pfd_detected = False
 
-        for board_index in range(pfcom.MAX_BOARDS):
-            pfcom.write(ioconfig, pfcom.IOCON, board_index)  # configure
+        for board_index in range(pifacecommon.core.MAX_BOARDS):
+            pifacecommon.core.write(
+                ioconfig, pifacecommon.core.IOCON, board_index)
 
             if not pfd_detected:
-                if pfcom.read(pfcom.IOCON, board_index) == ioconfig:
+                pfioconf = pifacecommon.core.read(
+                    pifacecommon.core.IOCON, board_index)
+                if pfioconf == ioconfig:
                     pfd_detected = True
 
-            pfcom.write(0, pfcom.GPIOA, board_index)  # clear port A
-            pfcom.write(0, pfcom.IODIRA, board_index)  # port A as outputs
-            pfcom.write(0xff, pfcom.IODIRB, board_index)  # port B as inputs
-            pfcom.write(0xff, pfcom.GPPUB, board_index)  # port B pullups on
+            # clear port A and set it as an output
+            pifacecommon.core.write(0, pifacecommon.core.GPIOA, board_index)
+            pifacecommon.core.write(0, pifacecommon.core.IODIRA, board_index)
+            # set port B as input and turn pullups on
+            pifacecommon.core.write(
+                0xff, pifacecommon.core.IODIRB, board_index)
+            pifacecommon.core.write(0xff, pifacecommon.core.GPPUB, board_index)
 
         if not pfd_detected:
             raise NoPiFaceDigitalDetectedError(
@@ -152,7 +183,7 @@ def init(init_board=True):
 
 def deinit():
     """Closes the spidev file descriptor"""
-    pfcom.deinit()
+    pifacecommon.core.deinit()
 
 
 # wrapper functions for backwards compatibility
@@ -170,7 +201,7 @@ def digital_read(pin_num, board_num=0):
     :type board_num: int
     :returns: int -- value of the pin
     """
-    return pfcom.read_bit(pin_num, INPUT_PORT, board_num) ^ 1
+    return pifacecommon.core.read_bit(pin_num, INPUT_PORT, board_num) ^ 1
 
 
 def digital_write(pin_num, value, board_num=0):
@@ -188,7 +219,7 @@ def digital_write(pin_num, value, board_num=0):
     :param board_num: The board to read from (default: 0)
     :type board_num: int
     """
-    pfcom.write_bit(value, pin_num, OUTPUT_PORT, board_num)
+    pifacecommon.core.write_bit(value, pin_num, OUTPUT_PORT, board_num)
 
 
 def digital_read_pullup(pin_num, board_num=0):
@@ -205,7 +236,7 @@ def digital_read_pullup(pin_num, board_num=0):
     :type board_num: int
     :returns: int -- value of the pin
     """
-    return pfcom.read_bit(pin_num, INPUT_PULLUP, board_num)
+    return pifacecommon.core.read_bit(pin_num, INPUT_PULLUP, board_num)
 
 
 def digital_write_pullup(pin_num, value, board_num=0):
@@ -223,17 +254,4 @@ def digital_write_pullup(pin_num, value, board_num=0):
     :param board_num: The board to read from (default: 0)
     :type board_num: int
     """
-    pfcom.write_bit(value, pin_num, INPUT_PULLUP, board_num)
-
-
-# interrupts
-def wait_for_input(input_func_map=None, timeout=None):
-    """Waits for an port event (change) and runs the callback function tied to
-    that.
-
-    :param input_func_map: An InputFunctionMap object describing callbacks.
-    :type input_func_map: :class:`pifacecommon.interrupts.InputFunctionMap`
-    :param timeout: How long we should wait before giving up.
-    :type timeout: int
-    """
-    pfcom.wait_for_interrupt(INPUT_PORT, input_func_map, timeout)
+    pifacecommon.core.write_bit(value, pin_num, INPUT_PULLUP, board_num)

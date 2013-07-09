@@ -41,12 +41,7 @@ def check_pifacecommon():
 
 
 if "install" in sys.argv and not MODULE_ONLY:
-    try:
-        check_pifacecommon()
-    except IOError as e:
-        if (e[0] == errno.EPERM):
-            sys.stderr.write("Install script must be run as root.")
-            sys.exit(1)
+    check_pifacecommon()
 
 
 setup(
