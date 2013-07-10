@@ -179,6 +179,7 @@ class TestInterrupts(unittest.TestCase):
 
     def test_interrupt(self):
         self.listener.activate()
+        print("Press switch 0")
         self.barrier.wait()
         self.assertTrue(self.test_passed)
 

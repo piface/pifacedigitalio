@@ -47,15 +47,20 @@ class Mole(object):
             return True
 
 
-class WhackAMoleGame(threading.Thread):
+class WhackAMoleGame(object):
     def __init__(self):
         self.should_stop = False
-        self.moles = [Mole(i, pfd) for i in range(NUM_MOLES)]
+        self.pifacedigital = pifacedigitalio.PiFaceDigital()
+        self.moles = [Mole(i, self.pifacedigital) for i in range(NUM_MOLES)]
         self._current_points = 0
         self.max_points = 0
-        super().__init__()
+        self.inputlistener = pifacedigitalio.InputEventListener()
+        for i in range(4):
+            self.inputlistener.register(
+                i, pifacedigitalio.IODIR_ON, self.hit_mole)
+        self.inputlistener.activate()
 
-    def run(self):
+    def start(self):
         while not self.should_stop:
             # randomly moves moles up and down
             for mole in self.moles:
@@ -64,6 +69,8 @@ class WhackAMoleGame(threading.Thread):
 
             #sleep(random() * 3)
             sleep(1)
+        self.inputlistener.deactivate()
+        self.flash_leds()
 
     @property
     def points(self):
@@ -78,52 +85,26 @@ class WhackAMoleGame(threading.Thread):
         self.max_points = max(self.max_points, new_value)
         self._current_points = new_value
 
+    def hit_mole(self, event):
+        # print("You pressed", event.pin_num)
+        if game.moles[event.pin_num].hit():
+            game.points += 1
+            print("You hit a mole!")
+        else:
+            game.points -= 1
+            print("You missed!")
 
-class InputWatcher(threading.Thread):
-    def __init__(self, game):
-        self.should_stop = False
-
-        def hit_mole(flag, byte):
-            if self.should_stop:
-                return False
-
-            bit_num = pifacecommon.get_bit_num(flag)
-            print("You pressed", bit_num)
-
-            if game.moles[bit_num].hit():
-                game.points += 1
-                print("You hit a mole!")
-            else:
-                game.points -= 1
-                print("You missed!")
-
-            return True
-
-        self.ifm = pifacecommon.InputFunctionMap()
-        for i in range(4):
-            self.ifm.register(i, pifacecommon.IN_EVENT_DIR_ON, hit_mole)
-
-        super().__init__()
-
-    def run(self):
-        pifacedigitalio.wait_for_input(self.ifm)
+    def flash_leds(self):
+        self.pifacedigital.output_port.all_on()
+        for i in range(10):
+            self.pifacedigital.output_port.toggle()
+            sleep(0.1)
+        self.pifacedigital.output_port.all_off()
 
 
 if __name__ == "__main__":
     pifacedigitalio.init()
-    pfd = pifacedigitalio.PiFaceDigital()
     game = WhackAMoleGame()
     game.start()
-    input_watcher = InputWatcher(game)
-    input_watcher.start()
-    game.join()
-    pfd.output_port.all_on()
-    for i in range(10):
-        pfd.output_port.toggle()
-        sleep(0.1)
     print("You scored {}!".format(game.max_points))
-    print("press any button to finnish")
-    input_watcher.should_stop = True
-    input_watcher.join()
-    pfd.output_port.all_off()
     pifacedigitalio.deinit()

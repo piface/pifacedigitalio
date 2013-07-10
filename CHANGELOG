@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+v2.0.0
+------
+- Using new interrupt API (check the docs).
+
 v1.2.1
 ------
 - Supports Python 2.
