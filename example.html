@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Examples &mdash; PiFace Digital I/O 1.2.1 documentation</title>
+    <title>Examples &mdash; PiFace Digital I/O 2.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '1.2.1',
+        VERSION:     '2.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PiFace Digital I/O 1.2.1 documentation" href="index.html" />
+    <link rel="top" title="PiFace Digital I/O 2.0.0 documentation" href="index.html" />
     <link rel="next" title="Reference" href="reference.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
   </head>
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="installation.html" title="Installation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">PiFace Digital I/O 1.2.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Digital I/O 2.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -130,47 +130,44 @@ should probably be looking at <a class="reference external" href="https://github
 </div>
 <div class="section" id="interrupts">
 <h2>Interrupts<a class="headerlink" href="#interrupts" title="Permalink to this headline">¶</a></h2>
-<p>A poor way of checking the inputs for activity is to periodically poll them. A
-better way is to register tasks you would like to be completed when the input
-event occurs.</p>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Interrupts are subject to change (I&#8217;m not totally happy with this
-implementation - should be using threads and stuff).</p>
-</div>
-<p>We&#8217;re going to use <tt class="xref py py-class docutils literal"><span class="pre">pifacecommon.interrupts.InputFunctionMap</span></tt>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pifacecommon</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pifacedigitalio</span>
-
+<p>Instead of polling for input we can use the <tt class="xref py py-class docutils literal"><span class="pre">InputEventListener</span></tt> to
+register actions that we wish to be called on certain input events.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pifacedigitalio</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pfd</span> <span class="o">=</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">PiFaceDigital</span><span class="p">()</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># create two functions</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">toggle_led0</span><span class="p">(</span><span class="n">interrupt_bit</span><span class="p">,</span> <span class="n">input_byte</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">toggle_led0</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="n">pfd</span><span class="o">.</span><span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">toggle</span><span class="p">()</span>
-<span class="gp">... </span>    <span class="k">return</span> <span class="bp">True</span>  <span class="c"># keep waiting for interrupts</span>
 <span class="gp">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">toggle_led7</span><span class="p">(</span><span class="n">interrupt_bit</span><span class="p">,</span> <span class="n">input_byte</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="n">pfd</span><span class="o">.</span><span class="n">leds</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span><span class="o">.</span><span class="n">toggle</span><span class="p">()</span>
-<span class="gp">... </span>    <span class="k">return</span> <span class="bp">False</span>  <span class="c"># stop waiting for interrupts (default behaviour)</span>
-<span class="gp">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ifm</span> <span class="o">=</span> <span class="n">pifacecommon</span><span class="o">.</span><span class="n">InputFunctionMap</span><span class="p">()</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># when switch 0 (input0) is pressed, run toggle_led0</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ifm</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
-<span class="go">        input_num=0,</span>
-<span class="go">        direction=pifacecommon.IN_EVENT_DIR_ON,</span>
-<span class="go">        callback=toggle_led0,</span>
-<span class="go">        board_num=0)  # optional</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="c"># when switch 1 (input1) is un-pressed, run toggle_led7</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ifm</span><span class="o">.</span><span class="n">register</span><span class="p">(</span>
-<span class="go">        input_num=1,</span>
-<span class="go">        direction=pifacecommon.IN_EVENT_DIR_OFF,</span>
-<span class="go">        callback=toggle_led7)</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">wait_for_input</span><span class="p">(</span><span class="n">ifm</span><span class="p">)</span>  <span class="c"># returns after un-pressing switch1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span> <span class="o">=</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">InputEventListener</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">IODIR_ON</span><span class="p">,</span> <span class="n">toggle_led0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span><span class="o">.</span><span class="n">activate</span><span class="p">()</span>
 </pre></div>
+</div>
+<p>When input 0 is pressed, led0 will be toggled. To stop the listener, call it&#8217;s
+<tt class="docutils literal"><span class="pre">deactivate</span></tt> method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span><span class="o">.</span><span class="n">deactivate</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The <tt class="xref py py-class docutils literal"><span class="pre">Event</span></tt> object has some interesting attributes. You can access them
+like so:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pifacedigitalio</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">print_event_info</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Flag:     &quot;</span><span class="p">,</span> <span class="nb">bin</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">interrupt_flag</span><span class="p">))</span>
+<span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Capture:  &quot;</span><span class="p">,</span> <span class="nb">bin</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">interrupt_capture</span><span class="p">))</span>
+<span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Pin num:  &quot;</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">pin_num</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Direction:&quot;</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span> <span class="o">=</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">InputEventListener</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">IODIR_OFF</span><span class="p">,</span> <span class="n">print_event_info</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span><span class="o">.</span><span class="n">activate</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This would print out the event informaion whenever you unpress switch 0:</p>
+<div class="highlight-python"><pre>Flag:      0b00000001
+Capture:   0b11111110
+Pin num:   0
+Direction: 1</pre>
 </div>
 </div>
 </div>
@@ -234,7 +231,7 @@ implementation - should be using threads and stuff).</p>
         <li class="right" >
           <a href="installation.html" title="Installation"
              >previous</a> |</li>
-        <li><a href="index.html">PiFace Digital I/O 1.2.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Digital I/O 2.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

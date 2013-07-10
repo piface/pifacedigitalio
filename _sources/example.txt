@@ -77,43 +77,42 @@ Polymorphism
 Interrupts
 ==========
 
-A poor way of checking the inputs for activity is to periodically poll them. A
-better way is to register tasks you would like to be completed when the input
-event occurs.
+Instead of polling for input we can use the :class:`InputEventListener` to
+register actions that we wish to be called on certain input events.
 
-.. warning:: Interrupts are subject to change (I'm not totally happy with this
-   implementation - should be using threads and stuff).
-
-We're going to use :class:`pifacecommon.interrupts.InputFunctionMap`::
-
-    >>> import pifacecommon
     >>> import pifacedigitalio
-
     >>> pifacedigitalio.init()
     >>> pfd = pifacedigitalio.PiFaceDigital()
-
-    >>> # create two functions
-    >>> def toggle_led0(interrupt_bit, input_byte):
+    >>> def toggle_led0(event):
     ...     pfd.leds[0].toggle()
-    ...     return True  # keep waiting for interrupts
     ...
-    >>> def toggle_led7(interrupt_bit, input_byte):
-    ...     pfd.leds[7].toggle()
-    ...     return False  # stop waiting for interrupts (default behaviour)
+    >>> listener = pifacedigitalio.InputEventListener()
+    >>> listener.register(0, pifacedigitalio.IODIR_ON, toggle_led0)
+    >>> listener.activate()
+
+When input 0 is pressed, led0 will be toggled. To stop the listener, call it's
+``deactivate`` method:
+
+    >>> listener.deactivate()
+
+The :class:`Event` object has some interesting attributes. You can access them
+like so::
+
+    >>> import pifacedigitalio
+    >>> pifacedigitalio.init()
+    >>> def print_event_info(event):
+    ...     print("Flag:     ", bin(event.interrupt_flag))
+    ...     print("Capture:  ", bin(event.interrupt_capture))
+    ...     print("Pin num:  ", event.pin_num)
+    ...     print("Direction:", event.direction)
     ...
-    >>> ifm = pifacecommon.InputFunctionMap()
+    >>> listener = pifacedigitalio.InputEventListener()
+    >>> listener.register(0, pifacedigitalio.IODIR_OFF, print_event_info)
+    >>> listener.activate()
 
-    >>> # when switch 0 (input0) is pressed, run toggle_led0
-    >>> ifm.register(
-            input_num=0,
-            direction=pifacecommon.IN_EVENT_DIR_ON,
-            callback=toggle_led0,
-            board_num=0)  # optional
+This would print out the event informaion whenever you unpress switch 0::
 
-    >>> # when switch 1 (input1) is un-pressed, run toggle_led7
-    >>> ifm.register(
-            input_num=1,
-            direction=pifacecommon.IN_EVENT_DIR_OFF,
-            callback=toggle_led7)
-
-    >>> pifacedigitalio.wait_for_input(ifm)  # returns after un-pressing switch1
+    Flag:      0b00000001
+    Capture:   0b11111110
+    Pin num:   0
+    Direction: 1

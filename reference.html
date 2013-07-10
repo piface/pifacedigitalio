@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Reference &mdash; PiFace Digital I/O 1.2.1 documentation</title>
+    <title>Reference &mdash; PiFace Digital I/O 2.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '1.2.1',
+        VERSION:     '2.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PiFace Digital I/O 1.2.1 documentation" href="index.html" />
+    <link rel="top" title="PiFace Digital I/O 2.0.0 documentation" href="index.html" />
     <link rel="prev" title="Examples" href="example.html" /> 
   </head>
   <body>
@@ -41,7 +41,7 @@
         <li class="right" >
           <a href="example.html" title="Examples"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">PiFace Digital I/O 1.2.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Digital I/O 2.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -71,6 +71,21 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.</p>
 <p>You should have received a copy of the GNU General Public License
 along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
+<dl class="class">
+<dt id="pifacedigitalio.InputEventListener">
+<em class="property">class </em><tt class="descclassname">pifacedigitalio.</tt><tt class="descname">InputEventListener</tt><a class="headerlink" href="#pifacedigitalio.InputEventListener" title="Permalink to this definition">¶</a></dt>
+<dd><p>Listens for events on the input port and calls the mapped callback
+functions.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">print_flag</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">interrupt_flag</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span> <span class="o">=</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">InputEventListener</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">IODIR_ON</span><span class="p">,</span> <span class="n">print_flag</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span><span class="o">.</span><span class="n">activate</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
 <dl class="class">
 <dt id="pifacedigitalio.LED">
 <em class="property">class </em><tt class="descclassname">pifacedigitalio.</tt><tt class="descname">LED</tt><big>(</big><em>led_num</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.LED" title="Permalink to this definition">¶</a></dt>
@@ -265,25 +280,6 @@ IO board. Consider using <tt class="xref py py-func docutils literal"><span clas
 </table>
 </dd></dl>
 
-<dl class="function">
-<dt id="pifacedigitalio.wait_for_input">
-<tt class="descclassname">pifacedigitalio.</tt><tt class="descname">wait_for_input</tt><big>(</big><em>input_func_map=None</em>, <em>timeout=None</em><big>)</big><a class="headerlink" href="#pifacedigitalio.wait_for_input" title="Permalink to this definition">¶</a></dt>
-<dd><p>Waits for an port event (change) and runs the callback function tied to
-that.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>input_func_map</strong> (<tt class="xref py py-class docutils literal"><span class="pre">pifacecommon.interrupts.InputFunctionMap</span></tt>) &#8211; An InputFunctionMap object describing callbacks.</li>
-<li><strong>timeout</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; How long we should wait before giving up.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 </div>
 
 
@@ -329,7 +325,7 @@ that.</p>
         <li class="right" >
           <a href="example.html" title="Examples"
              >previous</a> |</li>
-        <li><a href="index.html">PiFace Digital I/O 1.2.1 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Digital I/O 2.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
