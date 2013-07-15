@@ -5,6 +5,7 @@ from distutils.core import setup
 
 PY3 = sys.version_info.major >= 3
 PYTHON_CMD = "python3" if PY3 else "python"
+PIFACECOMMON_MIN_VERSION = '2.0.0'
 
 
 # change this to True if you just want to install the module by itself
@@ -27,17 +28,20 @@ def run_cmd(cmd, error_msg):
 
 
 def install_pifacecommon():
-    print("Installing pifacecommon.")
+    print("Installing the latest pifacecommon.")
     run_cmd(INSTALL_PIFACECOMMON_CMD, "Failed to install pifacecommon.")
 
 
 def check_pifacecommon():
     try:
         import pifacecommon
-        # TODO version numbers
     except ImportError:
         print("pifacecommon is not installed.")
         install_pifacecommon()
+    else:
+        if pifacecommon.__version__ < PIFACECOMMON_MIN_VERSION:
+            print("pifacecommon needs to be updated.")
+            install_pifacecommon()
 
 
 if "install" in sys.argv and not MODULE_ONLY:
@@ -46,7 +50,7 @@ if "install" in sys.argv and not MODULE_ONLY:
 
 setup(
     name='pifacedigitalio',
-    version='2.0.0',
+    version='2.0.1',
     description='The PiFace Digital I/O module.',
     author='Thomas Preston',
     author_email='thomasmarkpreston@gmail.com',
@@ -64,7 +68,5 @@ setup(
     ],
     keywords='piface digital raspberrypi openlx',
     license='GPLv3+',
-    requires=[
-        'pifacecommon',
-    ]
+    requires=['pifacecommon (>='+PIFACECOMMON_MIN_VERSION+')']
 )
