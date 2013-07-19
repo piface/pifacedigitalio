@@ -20,9 +20,6 @@ import select
 import subprocess
 import time
 import pifacecommon
-from pifacecommon.interrupts import (IODIR_ON, IODIR_OFF, IODIR_BOTH)
-
-__version__ = '2.0.1'
 
 # /dev/spidev<bus>.<chipselect>
 SPI_BUS = 0
