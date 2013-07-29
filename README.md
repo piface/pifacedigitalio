@@ -3,6 +3,12 @@ pifacedigitalio
 The PiFace Digital Input/Output module ([PyPI](https://pypi.python.org/pypi/pifacedigitalio/)).
 
 
+Documentation
+=============
+
+[http://piface.github.io/pifacedigitalio/](http://piface.github.io/pifacedigitalio/)
+
+
 Installation
 ============
 
@@ -15,10 +21,3 @@ For those of you who are still using Python 2:
     $ sudo python setup.py install
 
 You may need to reboot.
-
-
-Documentation
-=============
-
-[http://piface.github.io/pifacedigitalio/](http://piface.github.io/pifacedigitalio/)
-
