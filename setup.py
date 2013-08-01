@@ -47,12 +47,11 @@ def install_pifacecommon():
 
 def check_pifacecommon():
     try:
-        import pifacecommon
+        import pifacecommon.version
     except ImportError:
         print("pifacecommon is not installed.")
         install_pifacecommon()
     else:
-        import pifacecommon.version
         if pifacecommon.version.__version__ < PIFACECOMMON_MIN_VERSION:
             print("pifacecommon needs to be updated.")
             install_pifacecommon()
