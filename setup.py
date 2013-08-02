@@ -26,7 +26,7 @@ setup(
     version=get_version(),
     description='The PiFace Digital I/O module.',
     author='Thomas Preston',
-    author_email='thomas.preston@openlx.',
+    author_email='thomas.preston@openlx.org.uk',
     url='http://piface.github.io/pifacecommon/index.html',
     packages=['pifacedigitalio'],
     long_description=open('README.md').read() + open('CHANGELOG').read(),
