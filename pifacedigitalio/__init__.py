@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Provides common I/O methods for interfacing with PiFace Products
-Copyright (C) 2013 Thomas Preston <thomasmarkpreston@gmail.com>
+Copyright (C) 2013 Thomas Preston <thomas.preston@openlx.org.uk>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

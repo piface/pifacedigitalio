@@ -3,9 +3,9 @@ Change Log
 
 v2.0.2
 ------
-- Using package structure for version number file and consistency with other
-  PiFace modules.
-- Added uninstall script.
+- Using package structure for version number file and consistency with
+  other PiFace modules.
+- Updated docs with new install instructions.
 
 v2.0.1
 ------

@@ -4,7 +4,7 @@ Controls PiFace Digital through a web browser. Returns the status of the
 input port and the output port in a JSON string. Set the output with GET
 variables.
 
-Copyright (C) 2013 Thomas Preston <thomasmarkpreston@gmail.com>
+Copyright (C) 2013 Thomas Preston <thomas.preston@openlx.org.uk>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

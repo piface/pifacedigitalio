@@ -3,23 +3,10 @@ import subprocess
 from distutils.core import setup
 
 
-PY3 = sys.version_info.major >= 3
-PYTHON_CMD = "python3" if PY3 else "python"
+# PY3 = sys.version_info.major >= 3  # major is not available in python2.6
+PY3 = sys.version_info[0] >= 3
 PIFACECOMMON_MIN_VERSION = '2.0.0'
 VERSION_FILE = "pifacedigitalio/version.py"
-
-
-# change this to True if you just want to install the module by itself
-MODULE_ONLY = False
-
-INSTALL_PIFACECOMMON_CMD = \
-    "git clone https://github.com/piface/pifacecommon.git && " \
-    "cd pifacecommon && " \
-    "{} setup.py install".format(PYTHON_CMD)
-
-
-class InstallFailed(Exception):
-    pass
 
 
 def get_version():
@@ -34,39 +21,12 @@ def get_version():
         return __version__
 
 
-def run_cmd(cmd, error_msg):
-    success = subprocess.call([cmd], shell=True)
-    if success != 0:
-        raise InstallFailed(error_msg)
-
-
-def install_pifacecommon():
-    print("Installing the latest pifacecommon (with git).")
-    run_cmd(INSTALL_PIFACECOMMON_CMD, "Failed to install pifacecommon.")
-
-
-def check_pifacecommon():
-    try:
-        import pifacecommon.version
-    except ImportError:
-        print("pifacecommon is not installed.")
-        install_pifacecommon()
-    else:
-        if pifacecommon.version.__version__ < PIFACECOMMON_MIN_VERSION:
-            print("pifacecommon needs to be updated.")
-            install_pifacecommon()
-
-
-if "install" in sys.argv and not MODULE_ONLY:
-    check_pifacecommon()
-
-
 setup(
     name='pifacedigitalio',
     version=get_version(),
     description='The PiFace Digital I/O module.',
     author='Thomas Preston',
-    author_email='thomasmarkpreston@gmail.com',
+    author_email='thomas.preston@openlx.',
     url='http://piface.github.io/pifacecommon/index.html',
     packages=['pifacedigitalio'],
     long_description=open('README.md').read() + open('CHANGELOG').read(),
