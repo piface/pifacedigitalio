@@ -111,8 +111,8 @@ class InputEventListener(pifacecommon.interrupts.PortEventListener):
     >>> listener.register(0, pifacedigitalio.IODIR_ON, print_flag)
     >>> listener.activate()
     """
-    def __init__(self):
-        super(InputEventListener, self).__init__(INPUT_PORT)
+    def __init__(self, board_num=0):
+        super(InputEventListener, self).__init__(INPUT_PORT, board_num)
 
 
 def init(init_board=True):
@@ -160,10 +160,13 @@ def init(init_board=True):
             raise NoPiFaceDigitalDetectedError(
                 "No PiFace Digital board detected!"
             )
+        else:
+            pifacecommon.interrupts.enable_interrupts(INPUT_PORT)
 
 
 def deinit():
     """Closes the spidev file descriptor"""
+    pifacecommon.interrupts.disable_interrupts(INPUT_PORT)
     pifacecommon.core.deinit()
 
 

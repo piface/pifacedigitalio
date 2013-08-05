@@ -5,7 +5,7 @@ from distutils.core import setup
 
 # PY3 = sys.version_info.major >= 3  # major is not available in python2.6
 PY3 = sys.version_info[0] >= 3
-PIFACECOMMON_MIN_VERSION = '2.0.0'
+PIFACECOMMON_MIN_VERSION = '3.0.0'
 VERSION_FILE = "pifacedigitalio/version.py"
 
 

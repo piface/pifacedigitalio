@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+v2.0.3
+------
+- Added support for interrupts from multiple boards.
+
 v2.0.2
 ------
 - Using package structure for version number file and consistency with
