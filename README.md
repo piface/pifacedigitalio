@@ -9,8 +9,8 @@ Documentation
 [http://piface.github.io/pifacedigitalio/](http://piface.github.io/pifacedigitalio/)
 
 
-Installation
-============
+Install
+=======
 
 Download the latest releases of
 [pifacecommon](https://github.com/piface/pifacecommon/releases) and
