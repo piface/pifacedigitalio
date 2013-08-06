@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Reference &mdash; PiFace Digital I/O 2.0.0 documentation</title>
+    <title>Reference &mdash; PiFace Digital I/O 2.0.3 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '2.0.0',
+        VERSION:     '2.0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PiFace Digital I/O 2.0.0 documentation" href="index.html" />
+    <link rel="top" title="PiFace Digital I/O 2.0.3 documentation" href="index.html" />
     <link rel="prev" title="Examples" href="example.html" /> 
   </head>
   <body>
@@ -41,7 +41,7 @@
         <li class="right" >
           <a href="example.html" title="Examples"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">PiFace Digital I/O 2.0.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Digital I/O 2.0.3 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -54,26 +54,13 @@
 <h1>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h1>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">For backwards compatibility all constants, functions and classes in
-pifacecommon&#8217;s sub-modules (core, interrupts, errors) have been imported into
-the main namespace. <tt class="xref py py-func docutils literal"><span class="pre">pifacecommon.get_bit_num(0)()</span></tt> is the same as
-<tt class="xref py py-func docutils literal"><span class="pre">pifacecommon.core.get_bit_num(0)()</span></tt>.</p>
+<p class="last">Functions and classes in pifacedigitalio.core have been imported
+into the main namespace. <tt class="xref py py-func docutils literal"><span class="pre">pifacedigitalio.digital_write()</span></tt> is
+the same as <a class="reference internal" href="#pifacedigitalio.core.digital_write" title="pifacedigitalio.core.digital_write"><tt class="xref py py-func docutils literal"><span class="pre">pifacedigitalio.core.digital_write()</span></tt></a>.</p>
 </div>
-<span class="target" id="module-pifacedigitalio"></span><p>Provides I/O methods for interfacing with PiFace Digital (for Raspberry Pi)
-Copyright (C) 2013 Thomas Preston &lt;<a class="reference external" href="mailto:thomasmarkpreston&#37;&#52;&#48;gmail&#46;com">thomasmarkpreston<span>&#64;</span>gmail<span>&#46;</span>com</a>&gt;</p>
-<p>This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.</p>
-<p>This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.</p>
-<p>You should have received a copy of the GNU General Public License
-along with this program.  If not, see &lt;<a class="reference external" href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>&gt;.</p>
-<dl class="class">
-<dt id="pifacedigitalio.InputEventListener">
-<em class="property">class </em><tt class="descclassname">pifacedigitalio.</tt><tt class="descname">InputEventListener</tt><a class="headerlink" href="#pifacedigitalio.InputEventListener" title="Permalink to this definition">¶</a></dt>
+<span class="target" id="module-pifacedigitalio.core"></span><dl class="class">
+<dt id="pifacedigitalio.core.InputEventListener">
+<em class="property">class </em><tt class="descclassname">pifacedigitalio.core.</tt><tt class="descname">InputEventListener</tt><big>(</big><em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.core.InputEventListener" title="Permalink to this definition">¶</a></dt>
 <dd><p>Listens for events on the input port and calls the mapped callback
 functions.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">print_flag</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
@@ -87,15 +74,15 @@ functions.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="pifacedigitalio.LED">
-<em class="property">class </em><tt class="descclassname">pifacedigitalio.</tt><tt class="descname">LED</tt><big>(</big><em>led_num</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.LED" title="Permalink to this definition">¶</a></dt>
+<dt id="pifacedigitalio.core.LED">
+<em class="property">class </em><tt class="descclassname">pifacedigitalio.core.</tt><tt class="descname">LED</tt><big>(</big><em>led_num</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.core.LED" title="Permalink to this definition">¶</a></dt>
 <dd><p>An LED on a PiFace Digital board. Inherits
 <tt class="xref py py-class docutils literal"><span class="pre">pifacecommon.core.DigitalOutputItem</span></tt>.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="pifacedigitalio.PiFaceDigital">
-<em class="property">class </em><tt class="descclassname">pifacedigitalio.</tt><tt class="descname">PiFaceDigital</tt><big>(</big><em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.PiFaceDigital" title="Permalink to this definition">¶</a></dt>
+<dt id="pifacedigitalio.core.PiFaceDigital">
+<em class="property">class </em><tt class="descclassname">pifacedigitalio.core.</tt><tt class="descname">PiFaceDigital</tt><big>(</big><em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.core.PiFaceDigital" title="Permalink to this definition">¶</a></dt>
 <dd><p>A PiFace Digital board.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -114,11 +101,11 @@ functions.</p>
 <tr class="field-odd field"><th class="field-name">Attribute :</th><td class="field-body">output_pins &#8211; list containing
 <tt class="xref py py-class docutils literal"><span class="pre">pifacecommon.core.DigitalOutputPin</span></tt>.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Attribute :</th><td class="field-body">leds &#8211; list containing <a class="reference internal" href="#pifacedigitalio.LED" title="pifacedigitalio.LED"><tt class="xref py py-class docutils literal"><span class="pre">LED</span></tt></a>.</td>
+<tr class="field-even field"><th class="field-name">Attribute :</th><td class="field-body">leds &#8211; list containing <a class="reference internal" href="#pifacedigitalio.core.LED" title="pifacedigitalio.core.LED"><tt class="xref py py-class docutils literal"><span class="pre">LED</span></tt></a>.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Attribute :</th><td class="field-body">relays &#8211; list containing <a class="reference internal" href="#pifacedigitalio.Relay" title="pifacedigitalio.Relay"><tt class="xref py py-class docutils literal"><span class="pre">Relay</span></tt></a>.</td>
+<tr class="field-odd field"><th class="field-name">Attribute :</th><td class="field-body">relays &#8211; list containing <a class="reference internal" href="#pifacedigitalio.core.Relay" title="pifacedigitalio.core.Relay"><tt class="xref py py-class docutils literal"><span class="pre">Relay</span></tt></a>.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Attribute :</th><td class="field-body">switches &#8211; list containing <a class="reference internal" href="#pifacedigitalio.Switch" title="pifacedigitalio.Switch"><tt class="xref py py-class docutils literal"><span class="pre">Switch</span></tt></a>.</td>
+<tr class="field-even field"><th class="field-name">Attribute :</th><td class="field-body">switches &#8211; list containing <a class="reference internal" href="#pifacedigitalio.core.Switch" title="pifacedigitalio.core.Switch"><tt class="xref py py-class docutils literal"><span class="pre">Switch</span></tt></a>.</td>
 </tr>
 </tbody>
 </table>
@@ -133,28 +120,28 @@ functions.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="pifacedigitalio.Relay">
-<em class="property">class </em><tt class="descclassname">pifacedigitalio.</tt><tt class="descname">Relay</tt><big>(</big><em>relay_num</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.Relay" title="Permalink to this definition">¶</a></dt>
+<dt id="pifacedigitalio.core.Relay">
+<em class="property">class </em><tt class="descclassname">pifacedigitalio.core.</tt><tt class="descname">Relay</tt><big>(</big><em>relay_num</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.core.Relay" title="Permalink to this definition">¶</a></dt>
 <dd><p>A relay on a PiFace Digital board. Inherits
 <tt class="xref py py-class docutils literal"><span class="pre">pifacecommon.core.DigitalOutputItem</span></tt>.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="pifacedigitalio.Switch">
-<em class="property">class </em><tt class="descclassname">pifacedigitalio.</tt><tt class="descname">Switch</tt><big>(</big><em>switch_num</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.Switch" title="Permalink to this definition">¶</a></dt>
+<dt id="pifacedigitalio.core.Switch">
+<em class="property">class </em><tt class="descclassname">pifacedigitalio.core.</tt><tt class="descname">Switch</tt><big>(</big><em>switch_num</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.core.Switch" title="Permalink to this definition">¶</a></dt>
 <dd><p>A switch on a PiFace Digital board. Inherits
 <tt class="xref py py-class docutils literal"><span class="pre">pifacecommon.core.DigitalInputItem</span></tt>.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pifacedigitalio.deinit">
-<tt class="descclassname">pifacedigitalio.</tt><tt class="descname">deinit</tt><big>(</big><big>)</big><a class="headerlink" href="#pifacedigitalio.deinit" title="Permalink to this definition">¶</a></dt>
+<dt id="pifacedigitalio.core.deinit">
+<tt class="descclassname">pifacedigitalio.core.</tt><tt class="descname">deinit</tt><big>(</big><big>)</big><a class="headerlink" href="#pifacedigitalio.core.deinit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Closes the spidev file descriptor</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="pifacedigitalio.digital_read">
-<tt class="descclassname">pifacedigitalio.</tt><tt class="descname">digital_read</tt><big>(</big><em>pin_num</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.digital_read" title="Permalink to this definition">¶</a></dt>
+<dt id="pifacedigitalio.core.digital_read">
+<tt class="descclassname">pifacedigitalio.core.</tt><tt class="descname">digital_read</tt><big>(</big><em>pin_num</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.core.digital_read" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the value of the input pin specified.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -182,8 +169,8 @@ IO board. Consider using <tt class="xref py py-func docutils literal"><span clas
 </dd></dl>
 
 <dl class="function">
-<dt id="pifacedigitalio.digital_read_pullup">
-<tt class="descclassname">pifacedigitalio.</tt><tt class="descname">digital_read_pullup</tt><big>(</big><em>pin_num</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.digital_read_pullup" title="Permalink to this definition">¶</a></dt>
+<dt id="pifacedigitalio.core.digital_read_pullup">
+<tt class="descclassname">pifacedigitalio.core.</tt><tt class="descname">digital_read_pullup</tt><big>(</big><em>pin_num</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.core.digital_read_pullup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the value of the input pullup specified.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -211,8 +198,8 @@ IO board. Consider using <tt class="xref py py-func docutils literal"><span clas
 </dd></dl>
 
 <dl class="function">
-<dt id="pifacedigitalio.digital_write">
-<tt class="descclassname">pifacedigitalio.</tt><tt class="descname">digital_write</tt><big>(</big><em>pin_num</em>, <em>value</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.digital_write" title="Permalink to this definition">¶</a></dt>
+<dt id="pifacedigitalio.core.digital_write">
+<tt class="descclassname">pifacedigitalio.core.</tt><tt class="descname">digital_write</tt><big>(</big><em>pin_num</em>, <em>value</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.core.digital_write" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes the value to the input pin specified.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -238,8 +225,8 @@ IO board. Consider using <tt class="xref py py-func docutils literal"><span clas
 </dd></dl>
 
 <dl class="function">
-<dt id="pifacedigitalio.digital_write_pullup">
-<tt class="descclassname">pifacedigitalio.</tt><tt class="descname">digital_write_pullup</tt><big>(</big><em>pin_num</em>, <em>value</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.digital_write_pullup" title="Permalink to this definition">¶</a></dt>
+<dt id="pifacedigitalio.core.digital_write_pullup">
+<tt class="descclassname">pifacedigitalio.core.</tt><tt class="descname">digital_write_pullup</tt><big>(</big><em>pin_num</em>, <em>value</em>, <em>board_num=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.core.digital_write_pullup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Writes the value to the input pullup specified.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -265,8 +252,8 @@ IO board. Consider using <tt class="xref py py-func docutils literal"><span clas
 </dd></dl>
 
 <dl class="function">
-<dt id="pifacedigitalio.init">
-<tt class="descclassname">pifacedigitalio.</tt><tt class="descname">init</tt><big>(</big><em>init_board=True</em><big>)</big><a class="headerlink" href="#pifacedigitalio.init" title="Permalink to this definition">¶</a></dt>
+<dt id="pifacedigitalio.core.init">
+<tt class="descclassname">pifacedigitalio.core.</tt><tt class="descname">init</tt><big>(</big><em>init_board=True</em><big>)</big><a class="headerlink" href="#pifacedigitalio.core.init" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialises all PiFace Digital boards.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -325,7 +312,7 @@ IO board. Consider using <tt class="xref py py-func docutils literal"><span clas
         <li class="right" >
           <a href="example.html" title="Examples"
              >previous</a> |</li>
-        <li><a href="index.html">PiFace Digital I/O 2.0.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Digital I/O 2.0.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

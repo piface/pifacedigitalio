@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Examples &mdash; PiFace Digital I/O 2.0.0 documentation</title>
+    <title>Examples &mdash; PiFace Digital I/O 2.0.3 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '2.0.0',
+        VERSION:     '2.0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PiFace Digital I/O 2.0.0 documentation" href="index.html" />
+    <link rel="top" title="PiFace Digital I/O 2.0.3 documentation" href="index.html" />
     <link rel="next" title="Reference" href="reference.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
   </head>
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="installation.html" title="Installation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">PiFace Digital I/O 2.0.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Digital I/O 2.0.3 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -115,8 +115,8 @@ should probably be looking at <a class="reference external" href="https://github
 </pre></div>
 </div>
 </div>
-<div class="section" id="polymorphism">
-<h2>Polymorphism<a class="headerlink" href="#polymorphism" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="inheritance">
+<h2>Inheritance<a class="headerlink" href="#inheritance" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Chicken</span><span class="p">(</span><span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">Relay</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="gp">... </span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -124,7 +124,7 @@ should probably be looking at <a class="reference external" href="https://github
 <span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">turn_on</span><span class="p">()</span>
 <span class="gp">...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">chick1</span> <span class="o">=</span> <span class="n">Chicken</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">chick1</span><span class="o">.</span><span class="n">wobble</span><span class="p">()</span>      <span class="c"># Turns on relay0 (connected to a robot chicken)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">chick1</span><span class="o">.</span><span class="n">wobble</span><span class="p">()</span>  <span class="c"># Turns on relay0 (connected to a robot chicken)</span>
 </pre></div>
 </div>
 </div>
@@ -182,7 +182,7 @@ Direction: 1</pre>
   <ul>
 <li><a class="reference internal" href="#">Examples</a><ul>
 <li><a class="reference internal" href="#basic-usage">Basic usage</a></li>
-<li><a class="reference internal" href="#polymorphism">Polymorphism</a></li>
+<li><a class="reference internal" href="#inheritance">Inheritance</a></li>
 <li><a class="reference internal" href="#interrupts">Interrupts</a></li>
 </ul>
 </li>
@@ -231,7 +231,7 @@ Direction: 1</pre>
         <li class="right" >
           <a href="installation.html" title="Installation"
              >previous</a> |</li>
-        <li><a href="index.html">PiFace Digital I/O 2.0.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Digital I/O 2.0.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

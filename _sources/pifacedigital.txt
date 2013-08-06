@@ -12,21 +12,6 @@ ground. This offers greater flexibility so that PiFace Digital can control devic
 that operate using different voltages. The ninth pin provides 5V for connecting
 circuits to.
 
-Here is PiFace Digital with a simple circuit connected:
-
-.. image:: images/pifacedigital_basic_led.png
-    :width: 320px
-    :height: 240px
-    :align: center
-    :alt: An image of PiFace Digital with a simple circuit connected.
-
-And the code::
-
-    >>> import pifacedigitalio
-    >>> pifacedigitalio.init()
-    >>> pifacedigital = pifacedigitalio.PiFaceDigital()
-    >>> pifacedigital.output_pins[6].turn_on()
-
 LEDs
 ----
 The LED's are connected in parallel to each of the outputs. This means that

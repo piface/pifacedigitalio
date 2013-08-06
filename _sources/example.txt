@@ -61,8 +61,8 @@ should probably be looking at `pifacecommon <https://github.com/piface/pifacecom
     1
 
 
-Polymorphism
-============
+Inheritance
+===========
 
     >>> class Chicken(pifacedigitalio.Relay):
     ...     def __init__(self):
@@ -71,7 +71,7 @@ Polymorphism
     ...         self.turn_on()
     ...
     >>> chick1 = Chicken()
-    >>> chick1.wobble()      # Turns on relay0 (connected to a robot chicken)
+    >>> chick1.wobble()  # Turns on relay0 (connected to a robot chicken)
 
 
 Interrupts
