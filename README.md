@@ -12,12 +12,14 @@ Documentation
 Install
 =======
 
-Download the latest releases of
-[pifacecommon](https://github.com/piface/pifacecommon/releases) and
-[pifacedigitalio](https://github.com/piface/pifacedigitalio/releases).
-Then install with:
+Download the debian package from
+[here](https://github.com/piface/pifacedigitalio/releases) and install with:
 
-    $ dpkg -i python3-pifacecommon_2.0.2-1_all.deb python3-pifacedigitalio_2.0.2-1_all.deb
+    $ dpkg -i python3-pifacedigitalio_2.0.3-1_all.deb
+
+You may need to download and install the latest release of
+[pifacecommon](https://github.com/piface/pifacecommon/releases) and you might
+also need to reboot.
 
 Or you can install without using your package manager:
 
