@@ -1,0 +1,6 @@
+MANIFEST
+deb_dist
+docs
+dpkg-files
+makedebpkg.sh
+pifacedigitalio
