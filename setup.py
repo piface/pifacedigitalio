@@ -1,6 +1,10 @@
 import sys
 import subprocess
-from distutils.core import setup
+
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
 
 # PY3 = sys.version_info.major >= 3  # major is not available in python2.6
