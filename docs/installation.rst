@@ -11,7 +11,6 @@ Download the latest debian package from
 
 
 You may also need to download and install the latest release of
-`pifacecommon <https://github.com/piface/pifacecommon/releases>`_ and you might
-also need to reboot.
+`pifacecommon <https://github.com/piface/pifacecommon/releases>`_ and reboot.
 
 .. note:: Python 2 users will want to use python-pifacedigitalio\_\ |version|-1_all.deb.

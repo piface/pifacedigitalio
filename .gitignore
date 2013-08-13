@@ -4,6 +4,7 @@ makedebpkg.sh
 _build
 *.log
 MANIFEST
+deb_dist
 
 # databases
 *.db
