@@ -1,9 +1,14 @@
 Change Log
 ==========
 
+v2.1.0
+------
+- Added IODIR_FALLING_EDGE and IODIR_RISING_EDGE (pifacecommon v3.1.1).
+- Added `bus` and `chip_select` optional arguments to init.
+
 v2.0.3
 ------
-- Added support for interrupts from multiple boards.
+- Interrupts now work for multiple boards.
 
 v2.0.2
 ------

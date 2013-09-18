@@ -5,8 +5,8 @@ import time
 import pifacecommon
 
 # /dev/spidev<bus>.<chipselect>
-SPI_BUS = 0
-SPI_CHIP_SELECT = 0
+DEFAULT_SPI_BUS = 0
+DEFAULT_SPI_CHIP_SELECT = 0
 
 # some easier to remember/read values
 OUTPUT_PORT = pifacecommon.core.GPIOA
@@ -115,14 +115,20 @@ class InputEventListener(pifacecommon.interrupts.PortEventListener):
         super(InputEventListener, self).__init__(INPUT_PORT, board_num)
 
 
-def init(init_board=True):
+def init(init_board=True,
+         bus=DEFAULT_SPI_BUS,
+         chip_select=DEFAULT_SPI_CHIP_SELECT):
     """Initialises all PiFace Digital boards.
 
     :param init_board: Initialise each board (default: True)
     :type init_board: boolean
+    :param bus: SPI bus /dev/spidev<bus>.<chipselect> (default: {bus})
+    :type bus: int
+    :param chip_select: SPI bus /dev/spidev<bus>.<chipselect> (default: {chip})
+    :type chip_select: int
     :raises: :class:`NoPiFaceDigitalDetectedError`
-    """
-    pifacecommon.core.init(SPI_BUS, SPI_CHIP_SELECT)
+    """.format(bus=DEFAULT_SPI_BUS, chip=DEFAULT_SPI_CHIP_SELECT)
+    pifacecommon.core.init(bus, chip_select)
 
     if init_board:
          # set up each board
