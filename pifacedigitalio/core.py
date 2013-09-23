@@ -56,7 +56,7 @@ class Switch(pifacecommon.core.DigitalInputItem):
                 "Specified switch index (%d) out of range." % switch_num)
         else:
             super(Switch, self).__init__(
-                switch_num, INPUT_PORT, board_num, toggle=1)
+                switch_num, INPUT_PORT, board_num, toggle_mask=1)
 
 
 class PiFaceDigital(object):
@@ -84,13 +84,13 @@ class PiFaceDigital(object):
     """
     def __init__(self, board_num=0):
         self.board_num = board_num
-        self.input_port = \
-            pifacecommon.core.DigitalInputPort(INPUT_PORT, board_num, toggle=1)
-        self.output_port = \
-            pifacecommon.core.DigitalOutputPort(OUTPUT_PORT, board_num)
+        self.input_port = pifacecommon.core.DigitalInputPort(
+            INPUT_PORT, board_num, toggle_mask=0xff)
+        self.output_port = pifacecommon.core.DigitalOutputPort(
+            OUTPUT_PORT, board_num)
         self.input_pins = [
             pifacecommon.core.DigitalInputItem(
-                i, INPUT_PORT, board_num, toggle=1)
+                i, INPUT_PORT, board_num, toggle_mask=1)
             for i in range(8)
         ]
         self.output_pins = [
