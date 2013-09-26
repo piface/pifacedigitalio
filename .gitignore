@@ -1,5 +1,3 @@
-dpkg-files
-makedebpkg.sh
 *.deb
 _build
 *.log
