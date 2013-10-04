@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-import select
-import subprocess
-import time
 import pifacecommon.mcp23s17
 import pifacecommon.interrupts
 
@@ -9,56 +5,9 @@ import pifacecommon.interrupts
 DEFAULT_SPI_BUS = 0
 DEFAULT_SPI_CHIP_SELECT = 0
 
-# some easier to remember/read values
-OUTPUT_PORT = pifacecommon.core.GPIOA
-INPUT_PORT = pifacecommon.core.GPIOB
-INPUT_PULLUP = pifacecommon.core.GPPUB
-
-
-class InitError(Exception):
-    pass
-
 
 class NoPiFaceDigitalDetectedError(Exception):
     pass
-
-
-# class LED(pifacecommon.core.DigitalOutputItem):
-#     """An LED on a PiFace Digital board. Inherits
-#     :class:`pifacecommon.core.DigitalOutputItem`.
-#     """
-#     def __init__(self, led_num, hardware_addr=0):
-#         if led_num < 0 or led_num > 7:
-#             raise pifacecommon.core.RangeError(
-#                 "Specified LED index (%d) out of range." % led_num)
-#         else:
-#             super(LED, self).__init__(led_num, OUTPUT_PORT, hardware_addr)
-
-
-# class Relay(pifacecommon.core.DigitalOutputItem):
-#     """A relay on a PiFace Digital board. Inherits
-#     :class:`pifacecommon.core.DigitalOutputItem`.
-#     """
-#     def __init__(self, relay_num, hardware_addr=0):
-#         if relay_num < 0 or relay_num > 1:
-#             raise pifacecommon.core.RangeError(
-#                 "Specified relay index (%d) out of range." % relay_num)
-#         else:
-#             super(Relay, self).__init__(
-    # relay_num, OUTPUT_PORT, hardware_addr)
-
-
-# class Switch(pifacecommon.core.DigitalInputItem):
-#     """A switch on a PiFace Digital board. Inherits
-#     :class:`pifacecommon.core.DigitalInputItem`.
-#     """
-#     def __init__(self, switch_num, hardware_addr=0):
-#         if switch_num < 0 or switch_num > 3:
-#             raise pifacecommon.core.RangeError(
-#                 "Specified switch index (%d) out of range." % switch_num)
-#         else:
-#             super(Switch, self).__init__(
-#                 switch_num, INPUT_PORT, hardware_addr, toggle_mask=1)
 
 
 class PiFaceDigital(pifacecommon.mcp23s17.MCP23S17,
@@ -200,10 +149,18 @@ def init(init_board=True,
     if len(failed_boards) >= num_boards:
         raise failed_boards[0]
 
-# def deinit():
-#     """Closes the spidev file descriptor"""
-#     pifacecommon.interrupts.disable_interrupts(INPUT_PORT)
-#     pifacecommon.core.deinit()
+
+def deinit():
+    """Stops interrupts on all boards."""
+    num_boards = 4
+    for hardware_addr in range(num_boards):
+        try:
+            pfd = PiFaceDigital(
+                hardware_addr, bus, chip_select, init_board=False)
+        except NoPiFaceDigitalDetectedError:
+            pass
+        finally:
+            pfd.disable_interrupts()
 
 
 # wrapper functions for backwards compatibility
@@ -224,7 +181,6 @@ def digital_read(pin_num, hardware_addr=0):
     :type hardware_addr: int
     :returns: int -- value of the pin
     """
-    # return pifacecommon.core.read_bit(pin_num, INPUT_PORT, hardware_addr) ^ 1
     return PiFaceDigital(hardware_addr=hardware_addr,
                          init_board=False).input_pins[pin_num].value
 
@@ -270,7 +226,6 @@ def digital_read_pullup(pin_num, hardware_addr=0):
     :type hardware_addr: int
     :returns: int -- value of the pin
     """
-    # return pifacecommon.core.read_bit(pin_num, INPUT_PULLUP, hardware_addr)
     return PiFaceDigital(hardware_addr=hardware_addr,
                          init_board=False).gppub.bits[pin_num].value
 
@@ -294,6 +249,5 @@ def digital_write_pullup(pin_num, value, hardware_addr=0):
     :param hardware_addr: The board to read from (default: 0)
     :type hardware_addr: int
     """
-    # pifacecommon.core.write_bit(value, pin_num, INPUT_PULLUP, hardware_addr)
     PiFaceDigital(hardware_addr=hardware_addr,
                   init_board=False).gppub.bits[pin_num].value = value
