@@ -2,7 +2,7 @@
 import select
 import subprocess
 import time
-import pifacecommon
+import pifacecommon.mcp23s17
 
 # /dev/spidev<bus>.<chipselect>
 DEFAULT_SPI_BUS = 0
@@ -22,54 +22,55 @@ class NoPiFaceDigitalDetectedError(Exception):
     pass
 
 
-class LED(pifacecommon.core.DigitalOutputItem):
-    """An LED on a PiFace Digital board. Inherits
-    :class:`pifacecommon.core.DigitalOutputItem`.
-    """
-    def __init__(self, led_num, board_num=0):
-        if led_num < 0 or led_num > 7:
-            raise pifacecommon.core.RangeError(
-                "Specified LED index (%d) out of range." % led_num)
-        else:
-            super(LED, self).__init__(led_num, OUTPUT_PORT, board_num)
+# class LED(pifacecommon.core.DigitalOutputItem):
+#     """An LED on a PiFace Digital board. Inherits
+#     :class:`pifacecommon.core.DigitalOutputItem`.
+#     """
+#     def __init__(self, led_num, board_num=0):
+#         if led_num < 0 or led_num > 7:
+#             raise pifacecommon.core.RangeError(
+#                 "Specified LED index (%d) out of range." % led_num)
+#         else:
+#             super(LED, self).__init__(led_num, OUTPUT_PORT, board_num)
 
 
-class Relay(pifacecommon.core.DigitalOutputItem):
-    """A relay on a PiFace Digital board. Inherits
-    :class:`pifacecommon.core.DigitalOutputItem`.
-    """
-    def __init__(self, relay_num, board_num=0):
-        if relay_num < 0 or relay_num > 1:
-            raise pifacecommon.core.RangeError(
-                "Specified relay index (%d) out of range." % relay_num)
-        else:
-            super(Relay, self).__init__(relay_num, OUTPUT_PORT, board_num)
+# class Relay(pifacecommon.core.DigitalOutputItem):
+#     """A relay on a PiFace Digital board. Inherits
+#     :class:`pifacecommon.core.DigitalOutputItem`.
+#     """
+#     def __init__(self, relay_num, board_num=0):
+#         if relay_num < 0 or relay_num > 1:
+#             raise pifacecommon.core.RangeError(
+#                 "Specified relay index (%d) out of range." % relay_num)
+#         else:
+#             super(Relay, self).__init__(relay_num, OUTPUT_PORT, board_num)
 
 
-class Switch(pifacecommon.core.DigitalInputItem):
-    """A switch on a PiFace Digital board. Inherits
-    :class:`pifacecommon.core.DigitalInputItem`.
-    """
-    def __init__(self, switch_num, board_num=0):
-        if switch_num < 0 or switch_num > 3:
-            raise pifacecommon.core.RangeError(
-                "Specified switch index (%d) out of range." % switch_num)
-        else:
-            super(Switch, self).__init__(
-                switch_num, INPUT_PORT, board_num, toggle_mask=1)
+# class Switch(pifacecommon.core.DigitalInputItem):
+#     """A switch on a PiFace Digital board. Inherits
+#     :class:`pifacecommon.core.DigitalInputItem`.
+#     """
+#     def __init__(self, switch_num, board_num=0):
+#         if switch_num < 0 or switch_num > 3:
+#             raise pifacecommon.core.RangeError(
+#                 "Specified switch index (%d) out of range." % switch_num)
+#         else:
+#             super(Switch, self).__init__(
+#                 switch_num, INPUT_PORT, board_num, toggle_mask=1)
 
 
-class PiFaceDigital(object):
+class PiFaceDigital(pifacecommon.mcp23s17.MCP23S17,
+                    pifacecommon.interrupts.GPIOInterruptDevice):
     """A PiFace Digital board.
 
-    :attribute: board_num -- The board number.
-    :attribute: input_port -- See :class:`pifacecommon.core.DigitalInputPort`.
-    :attribute: output_port -- See
-        :class:`pifacecommon.core.DigitalOutputPort`.
     :attribute: input_pins -- list containing
-        :class:`pifacecommon.core.DigitalInputPin`.
+        :class:`pifacecommon.mcp23s17.MCP23S17RegisterBitNeg`.
+    :attribute: input_port -- See
+        :class:`pifacecommon.mcp23s17.MCP23S17RegisterNeg`.
     :attribute: output_pins -- list containing
-        :class:`pifacecommon.core.DigitalOutputPin`.
+        :class:`pifacecommon.mcp23s17.MCP23S17RegisterBit`.
+    :attribute: output_port -- See
+        :class:`pifacecommon.mcp23s17.MCP23S17Register`.
     :attribute: leds -- list containing :class:`LED`.
     :attribute: relays -- list containing :class:`Relay`.
     :attribute: switches -- list containing :class:`Switch`.
@@ -82,24 +83,77 @@ class PiFaceDigital(object):
     >>> pfd.output_port.value = 0xAA
     >>> pfd.leds[5].turn_on()
     """
-    def __init__(self, board_num=0):
-        self.board_num = board_num
-        self.input_port = pifacecommon.core.DigitalInputPort(
-            INPUT_PORT, board_num, toggle_mask=0xff)
-        self.output_port = pifacecommon.core.DigitalOutputPort(
-            OUTPUT_PORT, board_num)
-        self.input_pins = [
-            pifacecommon.core.DigitalInputItem(
-                i, INPUT_PORT, board_num, toggle_mask=1)
-            for i in range(8)
-        ]
-        self.output_pins = [
-            pifacecommon.core.DigitalOutputItem(
-                i, OUTPUT_PORT, board_num) for i in range(8)
-        ]
-        self.leds = [LED(i, board_num) for i in range(8)]
-        self.relays = [Relay(i, board_num) for i in range(2)]
-        self.switches = [Switch(i, board_num) for i in range(4)]
+    def __init__(self,
+                 hardware_addr=0,
+                 bus=DEFAULT_SPI_BUS,
+                 chip_select=DEFAULT_SPI_CHIP_SELECT,
+                 init_board=True):
+        super(PiFaceDigital, self).__init__(hardware_addr, bus, chip_select)
+
+        self.input_pins = [pifacecommon.mcp23s17.MCP23S17RegisterBitNeg(
+            i, pifacecommon.mcp23s17.GPIOB, self)
+            for i in range(8)]
+
+        self.input_port = pifacecommon.mcp23s17.MCP23S17RegisterNeg(
+            pifacecommon.mcp23s17.GPIOB, self)
+
+        self.output_pins = [pifacecommon.mcp23s17.MCP23S17RegisterBit(
+            i, pifacecommon.mcp23s17.GPIOA, self)
+            for i in range(8)]
+
+        self.output_port = pifacecommon.mcp23s17.MCP23S17Register(
+            pifacecommon.mcp23s17.GPIOA, self)
+
+        self.leds = [pifacecommon.mcp23s17.MCP23S17RegisterBit(
+            i, pifacecommon.mcp23s17.GPIOA, self)
+            for i in range(8)]
+
+        self.relays = [pifacecommon.mcp23s17.MCP23S17RegisterBit(
+            i, pifacecommon.mcp23s17.GPIOA, self)
+            for i in range(2)]
+
+        self.switches = [pifacecommon.mcp23s17.MCP23S17RegisterBitNeg(
+            i, pifacecommon.mcp23s17.GPIOB, self)
+            for i in range(4)]
+
+        if init_board:
+            self.init_board()
+
+    def __del__(self):
+        self.disable_interrupts()
+        super(PiFaceDigital, self).__del__()
+
+    def enable_interrupts(self):
+        self.gpintenb.value = 0xFF  # enable interrupts
+        self.gpio_interrupts_enable()
+
+    def disable_interrupts(self):
+        self.gpintenb.value = 0x00
+        self.gpio_interrupts_disable()
+
+    def init_board(self):
+        ioconfig = (
+            pifacecommon.core.BANK_OFF |
+            pifacecommon.core.INT_MIRROR_OFF |
+            pifacecommon.core.SEQOP_OFF |
+            pifacecommon.core.DISSLW_OFF |
+            pifacecommon.core.HAEN_ON |
+            pifacecommon.core.ODR_OFF |
+            pifacecommon.core.INTPOL_LOW
+        )
+        self.iocon.value = ioconfig
+        if self.iocon.value != ioconfig:
+            raise NoPiFaceDigitalDetectedError(
+                "No PiFace Digital board detected (hardware_addr={h}, "
+                "bus={b}, chip_select={c}).".format(
+                    h=self.hardware_addr, b=self.bus, c=self.chip_select))
+        else:
+            # finish configuring the board
+            self.gpioa.value = 0
+            self.iodira.value = 0  # GPIOA as outputs
+            self.iodirb.value = 0xFF  # GPIOB as inputs
+            self.gppub.value = 0xFF  # input pullups on
+            self.enable_interrupts()
 
 
 class InputEventListener(pifacecommon.interrupts.PortEventListener):
@@ -117,65 +171,65 @@ class InputEventListener(pifacecommon.interrupts.PortEventListener):
         super(InputEventListener, self).__init__(INPUT_PORT, board_num)
 
 
-def init(init_board=True,
-         bus=DEFAULT_SPI_BUS,
-         chip_select=DEFAULT_SPI_CHIP_SELECT):
-    """Initialises all PiFace Digital boards.
+# def init(init_board=True,
+#          bus=DEFAULT_SPI_BUS,
+#          chip_select=DEFAULT_SPI_CHIP_SELECT):
+#     """Initialises all PiFace Digital boards.
 
-    :param init_board: Initialise each board (default: True)
-    :type init_board: boolean
-    :param bus: SPI bus /dev/spidev<bus>.<chipselect> (default: {bus})
-    :type bus: int
-    :param chip_select: SPI bus /dev/spidev<bus>.<chipselect> (default: {chip})
-    :type chip_select: int
-    :raises: :class:`NoPiFaceDigitalDetectedError`
-    """.format(bus=DEFAULT_SPI_BUS, chip=DEFAULT_SPI_CHIP_SELECT)
-    pifacecommon.core.init(bus, chip_select)
+#     :param init_board: Initialise each board (default: True)
+#     :type init_board: boolean
+#     :param bus: SPI bus /dev/spidev<bus>.<chipselect> (default: {bus})
+#     :type bus: int
+#     :param chip_select: SPI bus /dev/spidev<bus>.<chipselect> (default: {chip})
+#     :type chip_select: int
+#     :raises: :class:`NoPiFaceDigitalDetectedError`
+#     """.format(bus=DEFAULT_SPI_BUS, chip=DEFAULT_SPI_CHIP_SELECT)
+#     pifacecommon.core.init(bus, chip_select)
 
-    if init_board:
-         # set up each board
-        ioconfig = (
-            pifacecommon.core.BANK_OFF |
-            pifacecommon.core.INT_MIRROR_OFF |
-            pifacecommon.core.SEQOP_OFF |
-            pifacecommon.core.DISSLW_OFF |
-            pifacecommon.core.HAEN_ON |
-            pifacecommon.core.ODR_OFF |
-            pifacecommon.core.INTPOL_LOW
-        )
+#     if init_board:
+#          # set up each board
+#         ioconfig = (
+#             pifacecommon.core.BANK_OFF |
+#             pifacecommon.core.INT_MIRROR_OFF |
+#             pifacecommon.core.SEQOP_OFF |
+#             pifacecommon.core.DISSLW_OFF |
+#             pifacecommon.core.HAEN_ON |
+#             pifacecommon.core.ODR_OFF |
+#             pifacecommon.core.INTPOL_LOW
+#         )
 
-        pfd_detected = False
+#         pfd_detected = False
 
-        for board_index in range(pifacecommon.core.MAX_BOARDS):
-            pifacecommon.core.write(
-                ioconfig, pifacecommon.core.IOCON, board_index)
+#         for board_index in range(pifacecommon.core.MAX_BOARDS):
+#             pifacecommon.core.write(
+#                 ioconfig, pifacecommon.core.IOCON, board_index)
 
-            if not pfd_detected:
-                pfioconf = pifacecommon.core.read(
-                    pifacecommon.core.IOCON, board_index)
-                if pfioconf == ioconfig:
-                    pfd_detected = True
+#             if not pfd_detected:
+#                 pfioconf = pifacecommon.core.read(
+#                     pifacecommon.core.IOCON, board_index)
+#                 if pfioconf == ioconfig:
+#                     pfd_detected = True
 
-            # clear port A and set it as an output
-            pifacecommon.core.write(0, pifacecommon.core.GPIOA, board_index)
-            pifacecommon.core.write(0, pifacecommon.core.IODIRA, board_index)
-            # set port B as input and turn pullups on
-            pifacecommon.core.write(
-                0xff, pifacecommon.core.IODIRB, board_index)
-            pifacecommon.core.write(0xff, pifacecommon.core.GPPUB, board_index)
+#             # clear port A and set it as an output
+#             pifacecommon.core.write(0, pifacecommon.core.GPIOA, board_index)
+#             pifacecommon.core.write(0, pifacecommon.core.IODIRA, board_index)
+#             # set port B as input and turn pullups on
+#             pifacecommon.core.write(
+#                 0xff, pifacecommon.core.IODIRB, board_index)
+#             pifacecommon.core.write(0xff, pifacecommon.core.GPPUB, board_index)
 
-        if not pfd_detected:
-            raise NoPiFaceDigitalDetectedError(
-                "No PiFace Digital board detected!"
-            )
-        else:
-            pifacecommon.interrupts.enable_interrupts(INPUT_PORT)
+#         if not pfd_detected:
+#             raise NoPiFaceDigitalDetectedError(
+#                 "No PiFace Digital board detected!"
+#             )
+#         else:
+#             pifacecommon.interrupts.enable_interrupts(INPUT_PORT)
 
 
-def deinit():
-    """Closes the spidev file descriptor"""
-    pifacecommon.interrupts.disable_interrupts(INPUT_PORT)
-    pifacecommon.core.deinit()
+# def deinit():
+#     """Closes the spidev file descriptor"""
+#     pifacecommon.interrupts.disable_interrupts(INPUT_PORT)
+#     pifacecommon.core.deinit()
 
 
 # wrapper functions for backwards compatibility
