@@ -1,7 +1,6 @@
 import threading
 from time import sleep
 from random import randint, random
-import pifacecommon
 import pifacedigitalio
 
 
@@ -54,10 +53,11 @@ class WhackAMoleGame(object):
         self.moles = [Mole(i, self.pifacedigital) for i in range(NUM_MOLES)]
         self._current_points = 0
         self.max_points = 0
-        self.inputlistener = pifacedigitalio.InputEventListener()
+        self.inputlistener = \
+            pifacedigitalio.InputEventListener(chip=self.pifacedigital)
         for i in range(4):
             self.inputlistener.register(
-                i, pifacedigitalio.IODIR_ON, self.hit_mole)
+                i, pifacedigitalio.IODIR_FALLING_EDGE, self.hit_mole)
         self.inputlistener.activate()
 
     def start(self):
@@ -103,8 +103,6 @@ class WhackAMoleGame(object):
 
 
 if __name__ == "__main__":
-    pifacedigitalio.init()
     game = WhackAMoleGame()
     game.start()
     print("You scored {}!".format(game.max_points))
-    pifacedigitalio.deinit()

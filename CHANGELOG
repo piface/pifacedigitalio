@@ -1,9 +1,36 @@
 Change Log
 ==========
 
-v2.1.1
+v3.0.0
 ------
-- Updated for compatibility with pifacecommon v4.0.0.
+- Updated for compatibility with pifacecommon v4.0.0 (which uses the MCP23S17
+  class).
+- All occurrences of `board_num` have been replaced with `hardware_addr` which
+  is more appropriate.
+- PiFace Digital is initialised when you instantiate the object. **You do not
+  need to call pifacedigitalio.init() any more unless you're using digital_read
+  or digital_write.**
+- PiFaceDigital inherits registers from MCP23S17 so you can access all the
+  registers on the chip. For example GPPUP:
+
+      >>> pfd = PiFaceDigital()
+      >>> pfd.gppub.value = 0xff
+      >>> pfd.gppub.bits[4].value = 1
+
+- InputEventListener now requires that you provide a chip object, not
+  a hardware_addr (board_num). This defaults to PiFaceDigital(hardware_addr=0).
+- Interrupt events contain a chip object representing the calling chip instead
+  of the hardware_addr (board_num). You can still access the
+  hardware_addr (board_num) like so:
+
+      >>> def my_callback(event):
+      ...     print(event.chip.hardware_addr)
+
+- Removed LED, Relay and Switch classes. They added arbitrary restrictions and
+  were not very useful. `pifacecommon.mcp23s17.MCP23S17RegisterBit` is more
+  appropriate.
+- Updated examples to reflect new changes.
+- See the docs (particularly the examples) for more information.
 
 v2.1.0
 ------

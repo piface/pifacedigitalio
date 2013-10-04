@@ -3,6 +3,7 @@ import select
 import subprocess
 import time
 import pifacecommon.mcp23s17
+import pifacecommon.interrupts
 
 # /dev/spidev<bus>.<chipselect>
 DEFAULT_SPI_BUS = 0
@@ -26,37 +27,38 @@ class NoPiFaceDigitalDetectedError(Exception):
 #     """An LED on a PiFace Digital board. Inherits
 #     :class:`pifacecommon.core.DigitalOutputItem`.
 #     """
-#     def __init__(self, led_num, board_num=0):
+#     def __init__(self, led_num, hardware_addr=0):
 #         if led_num < 0 or led_num > 7:
 #             raise pifacecommon.core.RangeError(
 #                 "Specified LED index (%d) out of range." % led_num)
 #         else:
-#             super(LED, self).__init__(led_num, OUTPUT_PORT, board_num)
+#             super(LED, self).__init__(led_num, OUTPUT_PORT, hardware_addr)
 
 
 # class Relay(pifacecommon.core.DigitalOutputItem):
 #     """A relay on a PiFace Digital board. Inherits
 #     :class:`pifacecommon.core.DigitalOutputItem`.
 #     """
-#     def __init__(self, relay_num, board_num=0):
+#     def __init__(self, relay_num, hardware_addr=0):
 #         if relay_num < 0 or relay_num > 1:
 #             raise pifacecommon.core.RangeError(
 #                 "Specified relay index (%d) out of range." % relay_num)
 #         else:
-#             super(Relay, self).__init__(relay_num, OUTPUT_PORT, board_num)
+#             super(Relay, self).__init__(
+    # relay_num, OUTPUT_PORT, hardware_addr)
 
 
 # class Switch(pifacecommon.core.DigitalInputItem):
 #     """A switch on a PiFace Digital board. Inherits
 #     :class:`pifacecommon.core.DigitalInputItem`.
 #     """
-#     def __init__(self, switch_num, board_num=0):
+#     def __init__(self, switch_num, hardware_addr=0):
 #         if switch_num < 0 or switch_num > 3:
 #             raise pifacecommon.core.RangeError(
 #                 "Specified switch index (%d) out of range." % switch_num)
 #         else:
 #             super(Switch, self).__init__(
-#                 switch_num, INPUT_PORT, board_num, toggle_mask=1)
+#                 switch_num, INPUT_PORT, hardware_addr, toggle_mask=1)
 
 
 class PiFaceDigital(pifacecommon.mcp23s17.MCP23S17,
@@ -119,9 +121,10 @@ class PiFaceDigital(pifacecommon.mcp23s17.MCP23S17,
         if init_board:
             self.init_board()
 
-    def __del__(self):
-        self.disable_interrupts()
-        super(PiFaceDigital, self).__del__()
+    # def __del__(self):
+    #     print("deleting")
+    #     self.disable_interrupts()
+    #     super(PiFaceDigital, self).__del__()
 
     def enable_interrupts(self):
         self.gpintenb.value = 0xFF  # enable interrupts
@@ -167,64 +170,35 @@ class InputEventListener(pifacecommon.interrupts.PortEventListener):
     >>> listener.register(0, pifacedigitalio.IODIR_ON, print_flag)
     >>> listener.activate()
     """
-    def __init__(self, board_num=0):
-        super(InputEventListener, self).__init__(INPUT_PORT, board_num)
+    def __init__(self, chip=None):
+        if chip is None:
+            chip = PiFaceDigital()
+        super(InputEventListener, self).__init__(
+            pifacecommon.mcp23s17.GPIOB, chip)
 
 
-# def init(init_board=True,
-#          bus=DEFAULT_SPI_BUS,
-#          chip_select=DEFAULT_SPI_CHIP_SELECT):
-#     """Initialises all PiFace Digital boards.
+def init(init_board=True,
+         bus=DEFAULT_SPI_BUS,
+         chip_select=DEFAULT_SPI_CHIP_SELECT):
+    """Initialises all PiFace Digital boards.
 
-#     :param init_board: Initialise each board (default: True)
-#     :type init_board: boolean
-#     :param bus: SPI bus /dev/spidev<bus>.<chipselect> (default: {bus})
-#     :type bus: int
-#     :param chip_select: SPI bus /dev/spidev<bus>.<chipselect> (default: {chip})
-#     :type chip_select: int
-#     :raises: :class:`NoPiFaceDigitalDetectedError`
-#     """.format(bus=DEFAULT_SPI_BUS, chip=DEFAULT_SPI_CHIP_SELECT)
-#     pifacecommon.core.init(bus, chip_select)
-
-#     if init_board:
-#          # set up each board
-#         ioconfig = (
-#             pifacecommon.core.BANK_OFF |
-#             pifacecommon.core.INT_MIRROR_OFF |
-#             pifacecommon.core.SEQOP_OFF |
-#             pifacecommon.core.DISSLW_OFF |
-#             pifacecommon.core.HAEN_ON |
-#             pifacecommon.core.ODR_OFF |
-#             pifacecommon.core.INTPOL_LOW
-#         )
-
-#         pfd_detected = False
-
-#         for board_index in range(pifacecommon.core.MAX_BOARDS):
-#             pifacecommon.core.write(
-#                 ioconfig, pifacecommon.core.IOCON, board_index)
-
-#             if not pfd_detected:
-#                 pfioconf = pifacecommon.core.read(
-#                     pifacecommon.core.IOCON, board_index)
-#                 if pfioconf == ioconfig:
-#                     pfd_detected = True
-
-#             # clear port A and set it as an output
-#             pifacecommon.core.write(0, pifacecommon.core.GPIOA, board_index)
-#             pifacecommon.core.write(0, pifacecommon.core.IODIRA, board_index)
-#             # set port B as input and turn pullups on
-#             pifacecommon.core.write(
-#                 0xff, pifacecommon.core.IODIRB, board_index)
-#             pifacecommon.core.write(0xff, pifacecommon.core.GPPUB, board_index)
-
-#         if not pfd_detected:
-#             raise NoPiFaceDigitalDetectedError(
-#                 "No PiFace Digital board detected!"
-#             )
-#         else:
-#             pifacecommon.interrupts.enable_interrupts(INPUT_PORT)
-
+    :param init_board: Initialise each board (default: True)
+    :type init_board: boolean
+    :param bus: SPI bus /dev/spidev<bus>.<chipselect> (default: {bus})
+    :type bus: int
+    :param chip_select: SPI bus /dev/spidev<bus>.<chipselect> (default: {chip})
+    :type chip_select: int
+    :raises: :class:`NoPiFaceDigitalDetectedError`
+    """.format(bus=DEFAULT_SPI_BUS, chip=DEFAULT_SPI_CHIP_SELECT)
+    num_boards = 4
+    failed_boards = list()
+    for hardware_addr in range(num_boards):
+        try:
+            PiFaceDigital(hardware_addr, bus, chip_select, init_board)
+        except NoPiFaceDigitalDetectedError as e:
+            failed_boards.append(e)
+    if len(failed_boards) >= num_boards:
+        raise failed_boards[0]
 
 # def deinit():
 #     """Closes the spidev file descriptor"""
@@ -233,71 +207,93 @@ class InputEventListener(pifacecommon.interrupts.PortEventListener):
 
 
 # wrapper functions for backwards compatibility
-def digital_read(pin_num, board_num=0):
+def digital_read(pin_num, hardware_addr=0):
     """Returns the value of the input pin specified.
 
     .. note:: This function is for familiarality with users of other types of
-       IO board. Consider using :func:`pifacecommon.core.read_bit` instead.
+       IO board. Consider accessing the ``input_pins`` attribute of a
+       PiFaceDigital object:
 
-       >>> pifacecommon.core.read_bit(pin_num, INPUT_PORT, board_num)
+       >>> pfd = PiFaceDigital(hardware_addr)
+       >>> pfd.input_pins[pin_num].value
+       0
 
     :param pin_num: The pin number to read.
     :type pin_num: int
-    :param board_num: The board to read from (default: 0)
-    :type board_num: int
+    :param hardware_addr: The board to read from (default: 0)
+    :type hardware_addr: int
     :returns: int -- value of the pin
     """
-    return pifacecommon.core.read_bit(pin_num, INPUT_PORT, board_num) ^ 1
+    # return pifacecommon.core.read_bit(pin_num, INPUT_PORT, hardware_addr) ^ 1
+    return PiFaceDigital(hardware_addr=hardware_addr,
+                         init_board=False).input_pins[pin_num].value
 
 
-def digital_write(pin_num, value, board_num=0):
+def digital_write(pin_num, value, hardware_addr=0):
     """Writes the value to the input pin specified.
 
     .. note:: This function is for familiarality with users of other types of
-       IO board. Consider using :func:`pifacecommon.core.write_bit` instead.
+       IO board. Consider accessing the ``output_pins`` attribute of a
+       PiFaceDigital object:
 
-       >>> pifacecommon.core.write_bit(value, pin_num, OUTPUT_PORT, board_num)
+       >>> pfd = PiFaceDigital(hardware_addr)
+       >>> pfd.output_pins[pin_num].value = 1
 
     :param pin_num: The pin number to write to.
     :type pin_num: int
     :param value: The value to write.
     :type value: int
-    :param board_num: The board to read from (default: 0)
-    :type board_num: int
+    :param hardware_addr: The board to read from (default: 0)
+    :type hardware_addr: int
     """
-    pifacecommon.core.write_bit(value, pin_num, OUTPUT_PORT, board_num)
+    # pifacecommon.core.write_bit(value, pin_num, OUTPUT_PORT, hardware_addr)
+    PiFaceDigital(hardware_addr=hardware_addr,
+                  init_board=False).output_pins[pin_num].value = value
 
 
-def digital_read_pullup(pin_num, board_num=0):
+def digital_read_pullup(pin_num, hardware_addr=0):
     """Returns the value of the input pullup specified.
 
     .. note:: This function is for familiarality with users of other types of
-       IO board. Consider using :func:`pifacecommon.core.read_bit` instead.
+       IO board. Consider accessing the ``gppub`` attribute of a
+       PiFaceDigital object:
 
-       >>> pifacecommon.core.read_bit(pin_num, INPUT_PULLUP, board_num)
+       >>> pfd = PiFaceDigital(hardware_addr)
+       >>> hex(pfd.gppub.value)
+       0xff
+       >>> pfd.gppub.bits[pin_num].value
+       1
 
     :param pin_num: The pin number to read.
     :type pin_num: int
-    :param board_num: The board to read from (default: 0)
-    :type board_num: int
+    :param hardware_addr: The board to read from (default: 0)
+    :type hardware_addr: int
     :returns: int -- value of the pin
     """
-    return pifacecommon.core.read_bit(pin_num, INPUT_PULLUP, board_num)
+    # return pifacecommon.core.read_bit(pin_num, INPUT_PULLUP, hardware_addr)
+    return PiFaceDigital(hardware_addr=hardware_addr,
+                         init_board=False).gppub.bits[pin_num].value
 
 
-def digital_write_pullup(pin_num, value, board_num=0):
+def digital_write_pullup(pin_num, value, hardware_addr=0):
     """Writes the value to the input pullup specified.
 
     .. note:: This function is for familiarality with users of other types of
-       IO board. Consider using :func:`pifacecommon.core.write_bit` instead.
+       IO board. Consider accessing the ``gppub`` attribute of a
+       PiFaceDigital object:
 
-       >>> pifacecommon.core.write_bit(value, pin_num, INPUT_PULLUP, board_num)
+       >>> pfd = PiFaceDigital(hardware_addr)
+       >>> hex(pfd.gppub.value)
+       0xff
+       >>> pfd.gppub.bits[pin_num].value = 1
 
     :param pin_num: The pin number to write to.
     :type pin_num: int
     :param value: The value to write.
     :type value: int
-    :param board_num: The board to read from (default: 0)
-    :type board_num: int
+    :param hardware_addr: The board to read from (default: 0)
+    :type hardware_addr: int
     """
-    pifacecommon.core.write_bit(value, pin_num, INPUT_PULLUP, board_num)
+    # pifacecommon.core.write_bit(value, pin_num, INPUT_PULLUP, hardware_addr)
+    PiFaceDigital(hardware_addr=hardware_addr,
+                  init_board=False).gppub.bits[pin_num].value = value
