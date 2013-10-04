@@ -22,4 +22,3 @@ from pifacecommon.interrupts import (
     IODIR_OFF,
     IODIR_BOTH,
 )
-from .core import *

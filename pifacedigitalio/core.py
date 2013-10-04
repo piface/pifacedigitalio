@@ -22,9 +22,12 @@ class PiFaceDigital(pifacecommon.mcp23s17.MCP23S17,
         :class:`pifacecommon.mcp23s17.MCP23S17RegisterBit`.
     :attribute: output_port -- See
         :class:`pifacecommon.mcp23s17.MCP23S17Register`.
-    :attribute: leds -- list containing :class:`LED`.
-    :attribute: relays -- list containing :class:`Relay`.
-    :attribute: switches -- list containing :class:`Switch`.
+    :attribute: leds --
+        list containing :class:`pifacecommon.mcp23s17.MCP23S17RegisterBit`.
+    :attribute: relays --
+        list containing :class:`pifacecommon.mcp23s17.MCP23S17RegisterBit`.
+    :attribute: switches --
+        list containing :class:`pifacecommon.mcp23s17.MCP23S17RegisterBit`.
 
     Example:
 
@@ -70,11 +73,6 @@ class PiFaceDigital(pifacecommon.mcp23s17.MCP23S17,
         if init_board:
             self.init_board()
 
-    # def __del__(self):
-    #     print("deleting")
-    #     self.disable_interrupts()
-    #     super(PiFaceDigital, self).__del__()
-
     def enable_interrupts(self):
         self.gpintenb.value = 0xFF  # enable interrupts
         self.gpio_interrupts_enable()
@@ -85,13 +83,13 @@ class PiFaceDigital(pifacecommon.mcp23s17.MCP23S17,
 
     def init_board(self):
         ioconfig = (
-            pifacecommon.core.BANK_OFF |
-            pifacecommon.core.INT_MIRROR_OFF |
-            pifacecommon.core.SEQOP_OFF |
-            pifacecommon.core.DISSLW_OFF |
-            pifacecommon.core.HAEN_ON |
-            pifacecommon.core.ODR_OFF |
-            pifacecommon.core.INTPOL_LOW
+            pifacecommon.mcp23s17.BANK_OFF |
+            pifacecommon.mcp23s17.INT_MIRROR_OFF |
+            pifacecommon.mcp23s17.SEQOP_OFF |
+            pifacecommon.mcp23s17.DISSLW_OFF |
+            pifacecommon.mcp23s17.HAEN_ON |
+            pifacecommon.mcp23s17.ODR_OFF |
+            pifacecommon.mcp23s17.INTPOL_LOW
         )
         self.iocon.value = ioconfig
         if self.iocon.value != ioconfig:
@@ -202,7 +200,6 @@ def digital_write(pin_num, value, hardware_addr=0):
     :param hardware_addr: The board to read from (default: 0)
     :type hardware_addr: int
     """
-    # pifacecommon.core.write_bit(value, pin_num, OUTPUT_PORT, hardware_addr)
     PiFaceDigital(hardware_addr=hardware_addr,
                   init_board=False).output_pins[pin_num].value = value
 

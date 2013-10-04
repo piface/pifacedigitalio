@@ -74,7 +74,7 @@ like so::
     >>> import pifacedigitalio
     >>> pifacedigital = pifacedigitalio.PiFaceDigital()
     >>> listener = pifacedigitalio.InputEventListener(chip=pifacedigital)
-    >>> listener.register(0, pifacedigitalio.IODIR_OFF, print)
+    >>> listener.register(0, pifacedigitalio.IODIR_RISING_EDGE, print)
     >>> listener.activate()
 
 This would print out the event informaion whenever you unpress switch 0::
