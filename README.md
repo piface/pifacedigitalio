@@ -15,14 +15,15 @@ You can also find the documentation and some examples installed at:
 Install
 =======
 
-Download the debian package from
-[here](https://github.com/piface/pifacedigitalio/releases) and install with:
+Make sure you are using the lastest version of Raspbian:
 
-    $ dpkg -i python3-pifacedigitalio_2.0.3-1_all.deb
+    $ sudo apt-get update
+    $ sudo apt-get upgrade
 
-You may need to download and install the latest release of
-[pifacecommon](https://github.com/piface/pifacecommon/releases) and reboot.
+Install `pifacedigitalio` (for Python 3 and 2) with the following command:
 
-Test it has worked by running ``blink.py``:
+    $ sudo apt-get install python{,3}-pifacedigitalio
 
-    python3 /usr/share/doc/python3-pifacedigitalio/examples/blink.py
+Test by running the `blink.py` program:
+
+    $ python3 /usr/share/doc/python3-pifacedigitalio/examples/blink.py

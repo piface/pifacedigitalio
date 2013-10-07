@@ -83,7 +83,6 @@ if __name__ == "__main__":
         port = DEFAULT_PORT
 
     # set up PiFace Digital
-    pifacedigitalio.init()
     PiFaceWebHandler.pifacedigital = pifacedigitalio.PiFaceDigital()
 
     print("Starting simple PiFace web control at:\n\n"

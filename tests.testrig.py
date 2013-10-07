@@ -33,59 +33,9 @@ SWITCH_RANGE = 4
 RELAY_RANGE = 2
 
 
-class TestRangedItem(object):
-    def test_normal_init(self):
-        for i in self.item_range:
-            item_instance = self.item_type(i)
-            self.assertTrue(type(item_instance) is self.item_type)
-
-    def test_boundary_init(self):
-        boundaries = (min(self.item_range) - 1, max(self.item_range) + 1)
-        for i in boundaries:
-            self.assertRaises(
-                pifacecommon.core.RangeError,
-                self.item_type,
-                i
-            )
-
-
-class TestLED(TestRangedItem, unittest.TestCase):
-    def setUp(self):
-        self.item_type = pifacedigitalio.LED
-        self.item_range = range(LED_RANGE)
-
-
-class TestSwitch(TestRangedItem, unittest.TestCase):
-    def setUp(self):
-        self.item_type = pifacedigitalio.Switch
-        self.item_range = range(SWITCH_RANGE)
-
-
-class TestRelay(TestRangedItem, unittest.TestCase):
-    def setUp(self):
-        self.item_type = pifacedigitalio.Relay
-        self.item_range = range(RELAY_RANGE)
-
-
-class TestDigitalRead(unittest.TestCase):
-    def setUp(self):
-        self.old_read_bit = pifacecommon.core.read_bit
-        pifacedigitalio.init()
-        # function is supposed to return 1, testing with 0
-        pifacecommon.core.read_bit = lambda pin, port, board: 0
-
-    def test_flip_bit(self):
-        # digital_read should flip 0 to 1
-        self.assertEqual(pifacedigitalio.digital_read(0, 0), 1)
-
-    def tearDown(self):
-        pifacedigitalio.deinit()
-        pifacecommon.core.read_bit = self.old_read_bit
-
-
 class TestPiFaceDigitalOutput(unittest.TestCase):
-    def setUp(self):
-        pifacedigitalio.init()
+    # def setUp(self):
+    #     pifacedigitalio.init()
 
     def test_leds(self):
         global pifacedigitals
@@ -141,9 +91,6 @@ class TestPiFaceDigitalOutput(unittest.TestCase):
             pfd.output_port.all_off()
             self.assertEqual(pfd.output_port.value, 0)
 
-    def tearDown(self):
-        pifacedigitalio.deinit()
-
 
 class TestPiFaceDigitalInput(unittest.TestCase):
     """Outputs are connected to inputs but reversed:
@@ -156,9 +103,6 @@ class TestPiFaceDigitalInput(unittest.TestCase):
         input 6 - output 1
         input 7 - output 0
     """
-    def setUp(self):
-        pifacedigitalio.init()
-
     def test_switches(self):
         global pifacedigitals
         for pfd in pifacedigitals:
@@ -167,6 +111,7 @@ class TestPiFaceDigitalInput(unittest.TestCase):
                 # input(
                 #     "Hold switch {a} and {b} on board {board} and then "
                 #     "press enter.".format(a=a, b=b, board=pfd.board_num))
+                #     "press enter.".format(a=a, b=b, board=pfd.hardware_addr))
                 # test rig input
                 pfd.output_pins[7-a].turn_on()
                 pfd.output_pins[7-b].turn_on()
@@ -204,13 +149,9 @@ class TestPiFaceDigitalInput(unittest.TestCase):
             self.assertEqual(pfd.input_port.value, 0x55)
             pfd.output_port.value = 0
 
-    def tearDown(self):
-        pifacedigitalio.deinit()
-
 
 class TestInterrupts(unittest.TestCase):
     def setUp(self):
-        pifacedigitalio.init()
         self.direction = pifacedigitalio.IODIR_ON
         self.barriers = dict()
         self.board_switch_pressed = list()
@@ -218,8 +159,8 @@ class TestInterrupts(unittest.TestCase):
 
         global pifacedigitals
         for p in pifacedigitals:
-            self.barriers[p.board_num] = threading.Barrier(2, timeout=10)
-            listener = pifacedigitalio.InputEventListener(p.board_num)
+            self.barriers[p.hardware_addr] = threading.Barrier(2, timeout=10)
+            listener = pifacedigitalio.InputEventListener(p)
             listener.register(0, self.direction, self.interrupts_test_helper)
             self.listeners.append(listener)
 
@@ -228,35 +169,34 @@ class TestInterrupts(unittest.TestCase):
             listener.activate()
         # print("Press switch 0 on every board.")
         barriers = self.barriers.items() if PY3 else self.barriers.iteritems()
-        for board_num, barrier in barriers:
+        for hardware_addr, barrier in barriers:
             p = multiprocessing.Process(target=simulate_button_press,
-                                        args=(7, board_num, 0.5))
+                                        args=(7, hardware_addr, 0.5))
             p.start()
-        # for board_num, barrier in barriers:
+        # for hardware_addr, barrier in barriers:
             barrier.wait()
 
         global pifacedigitals
         for p in pifacedigitals:
-            self.assertTrue(p.board_num in self.board_switch_pressed)
+            self.assertTrue(p.hardware_addr in self.board_switch_pressed)
 
     def interrupts_test_helper(self, event):
         self.assertEqual(event.interrupt_flag, 0x1)
         self.assertEqual(event.interrupt_capture, 0xfe)
         self.assertEqual(event.pin_num, 0)
         self.assertEqual(event.direction, self.direction)
-        self.board_switch_pressed.append(event.board_num)
-        # print("Switch 0 on board {} pressed.".format(event.board_num))
-        self.barriers[event.board_num].wait()
+        self.board_switch_pressed.append(event.chip.hardware_addr)
+        # print("Switch 0 on board {} pressed.".format(event.hardware_addr))
+        self.barriers[event.chip.hardware_addr].wait()
 
     def tearDown(self):
         for listener in self.listeners:
             listener.deactivate()
-        pifacedigitalio.deinit()
 
 
-def simulate_button_press(pin_num=0, board_num=0, hold_time=0.5):
+def simulate_button_press(pin_num=0, hardware_addr=0, hold_time=0.5):
     """Simulate a button press and unpress."""
-    pfd = pifacedigitalio.PiFaceDigital(board_num)
+    pfd = pifacedigitalio.PiFaceDigital(hardware_addr)
     pfd.output_pins[pin_num].turn_on()
     time.sleep(hold_time)
     pfd.output_pins[pin_num].turn_off()
@@ -302,7 +242,8 @@ if __name__ == "__main__":
         pifacedigitals.append(pifacedigitalio.PiFaceDigital(3))
         remove_arg("-b3", "--board3")
 
-    boards_string = ", ".join([str(pfd.board_num) for pfd in pifacedigitals])
-    # print("Testing boards:", boards_string)
+    hardware_addrs = \
+        ", ".join([str(pfd.hardware_addr) for pfd in pifacedigitals])
+    print("Testing PiFace Digital's with address:", hardware_addrs)
 
     unittest.main()
