@@ -48,6 +48,8 @@ Here are some functions you might want to use if objects aren't your thing::
     >>> p.digital_read(2, 3)     # reads pin2 (on board3)
     1
 
+.. note: These are just wrappers around the PiFaceDigital object.
+
 Interrupts
 ==========
 

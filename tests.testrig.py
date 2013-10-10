@@ -91,6 +91,15 @@ class TestPiFaceDigitalOutput(unittest.TestCase):
             pfd.output_port.all_off()
             self.assertEqual(pfd.output_port.value, 0)
 
+    def test_digital_write(self):
+        global pifacedigitals
+        for pfd in pifacedigitals:
+            for pin in range(8):
+                pifacedigitalio.digital_write(pin, 1, pfd.hardware_addr)
+                self.assertEqual(pfd.output_port.bits[pin].value, 1)
+                pifacedigitalio.digital_write(pin, 0, pfd.hardware_addr)
+                self.assertEqual(pfd.output_port.bits[pin].value, 0)
+
     # def tearDown(self):
     #     pifacedigitalio.deinit()
 
@@ -126,6 +135,9 @@ class TestPiFaceDigitalInput(unittest.TestCase):
 
                 # while we're here, test the input pins
                 self.assertEqual(pfd.input_pins[a].value, 1)
+                self.assertEqual(
+                    pifacedigitalio.digital_read(a, pfd.hardware_addr),
+                    1)
                 self.assertEqual(pfd.input_pins[b].value, 1)
 
                 # and the input port
