@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Examples &mdash; PiFace Digital I/O 2.0.3 documentation</title>
+    <title>Examples &mdash; PiFace Digital I/O 3.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '2.0.3',
+        VERSION:     '3.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PiFace Digital I/O 2.0.3 documentation" href="index.html" />
+    <link rel="top" title="PiFace Digital I/O 3.0.0 documentation" href="index.html" />
     <link rel="next" title="Reference" href="reference.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
   </head>
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="installation.html" title="Installation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">PiFace Digital I/O 2.0.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Digital I/O 3.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -56,26 +56,18 @@
             
   <div class="section" id="examples">
 <h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Subtitute <tt class="docutils literal"><span class="pre">python3</span></tt> for <tt class="docutils literal"><span class="pre">python</span></tt> if you want to use Python 2.</p>
-</div>
 <div class="section" id="basic-usage">
 <h2>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h2>
-<p>Set up:</p>
-<div class="highlight-python"><pre>$ python3
-&gt;&gt;&gt; import pifacedigitalio as p
-&gt;&gt;&gt; p.init()       # initialises the PiFace Digital board
-&gt;&gt;&gt; p.init(False)  # same as above without resetting ports</pre>
-</div>
-<p>Playing with PiFace Digital:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">pfd</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">PiFaceDigital</span><span class="p">()</span> <span class="c"># creates a PiFace Digtal object</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pifacedigitalio</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pfd</span><span class="o">.</span><span class="n">leds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">turn_on</span><span class="p">()</span>    <span class="c"># turn on the second LED</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pfd</span> <span class="o">=</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">PiFaceDigital</span><span class="p">()</span> <span class="c"># creates a PiFace Digtal object</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pfd</span><span class="o">.</span><span class="n">leds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">turn_on</span><span class="p">()</span>    <span class="c"># turn on/set high the second LED</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pfd</span><span class="o">.</span><span class="n">leds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_high</span><span class="p">()</span>   <span class="c"># turn on/set high the second LED</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pfd</span><span class="o">.</span><span class="n">leds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">toggle</span><span class="p">()</span>     <span class="c"># toggle third LED</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pfd</span><span class="o">.</span><span class="n">switches</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>    <span class="c"># check the status of switch3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pfd</span><span class="o">.</span><span class="n">switches</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>    <span class="c"># check the logical status of switch3</span>
 <span class="go">0</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pfd</span><span class="o">.</span><span class="n">relays</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c"># turn on the first relay</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pfd</span><span class="o">.</span><span class="n">relays</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c"># turn on/set high the first relay</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pfd</span><span class="o">.</span><span class="n">output_pins</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pfd</span><span class="o">.</span><span class="n">output_pins</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="o">.</span><span class="n">turn_off</span><span class="p">()</span>
@@ -87,26 +79,17 @@
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pfd</span><span class="o">.</span><span class="n">output_port</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mh">0xAA</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pfd</span><span class="o">.</span><span class="n">output_port</span><span class="o">.</span><span class="n">toggle</span><span class="p">()</span>
 
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">bin</span><span class="p">(</span><span class="n">pfd</span><span class="o">.</span><span class="n">input_port</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c"># with the fourth switch pressed</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">bin</span><span class="p">(</span><span class="n">pfd</span><span class="o">.</span><span class="n">input_port</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c"># fourth switch pressed (logical input port)</span>
 <span class="go">&#39;0b1000&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">bin</span><span class="p">(</span><span class="n">pfd</span><span class="o">.</span><span class="n">gpiob</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c"># fourth switch pressed (physical input port)</span>
+<span class="go">&#39;0b11110111&#39;</span>
 </pre></div>
 </div>
-<p>You can talk to the components directly:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">led0</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">LED</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c"># create an LED object (pin0, board0)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">led0</span><span class="o">.</span><span class="n">turn_on</span><span class="p">()</span>   <span class="c"># turn on the LED</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">led0</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">1</span>   <span class="c"># turn on the LED</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">led3_2</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">LED</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c"># create an LED object (pin3, board2)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">led3_2</span><span class="o">.</span><span class="n">turn_on</span><span class="p">()</span>      <span class="c"># turn on the LED</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">switch2</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">Switch</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c"># create a Switch object (pin2, board0)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">switch2</span><span class="o">.</span><span class="n">value</span>         <span class="c"># is the switch pressed?</span>
-<span class="go">0</span>
-</pre></div>
-</div>
-<p>Some functions you might want to use if objects aren&#8217;t your thing (though, you
-should probably be looking at <a class="reference external" href="https://github.com/piface/pifacecommon">pifacecommon</a> instead):</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">digital_write</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>    <span class="c"># writes pin0 (board0) high</span>
+<p>Here are some functions you might want to use if objects aren&#8217;t your thing:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pifacedigitalio</span> <span class="kn">as</span> <span class="nn">p</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">digital_write</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>    <span class="c"># writes pin0 high</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">digital_write</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="c"># writes pin5 on board2 high</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">digital_read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>        <span class="c"># reads pin4 (on board0)</span>
 <span class="go">0</span>
@@ -115,31 +98,17 @@ should probably be looking at <a class="reference external" href="https://github
 </pre></div>
 </div>
 </div>
-<div class="section" id="inheritance">
-<h2>Inheritance<a class="headerlink" href="#inheritance" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Chicken</span><span class="p">(</span><span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">Relay</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="gp">... </span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">... </span>    <span class="k">def</span> <span class="nf">wobble</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="gp">... </span>        <span class="bp">self</span><span class="o">.</span><span class="n">turn_on</span><span class="p">()</span>
-<span class="gp">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">chick1</span> <span class="o">=</span> <span class="n">Chicken</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">chick1</span><span class="o">.</span><span class="n">wobble</span><span class="p">()</span>  <span class="c"># Turns on relay0 (connected to a robot chicken)</span>
-</pre></div>
-</div>
-</div>
 <div class="section" id="interrupts">
 <h2>Interrupts<a class="headerlink" href="#interrupts" title="Permalink to this headline">¶</a></h2>
 <p>Instead of polling for input we can use the <tt class="xref py py-class docutils literal"><span class="pre">InputEventListener</span></tt> to
 register actions that we wish to be called on certain input events.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pifacedigitalio</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pfd</span> <span class="o">=</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">PiFaceDigital</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">toggle_led0</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="n">pfd</span><span class="o">.</span><span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">toggle</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">event</span><span class="o">.</span><span class="n">chip</span><span class="o">.</span><span class="n">leds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">toggle</span><span class="p">()</span>
 <span class="gp">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span> <span class="o">=</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">InputEventListener</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">IODIR_ON</span><span class="p">,</span> <span class="n">toggle_led0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pifacedigital</span> <span class="o">=</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">PiFaceDigital</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span> <span class="o">=</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">InputEventListener</span><span class="p">(</span><span class="n">chip</span><span class="o">=</span><span class="n">pifacedigital</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">IODIR_FALLING_EDGE</span><span class="p">,</span> <span class="n">toggle_led0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span><span class="o">.</span><span class="n">activate</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -151,23 +120,19 @@ register actions that we wish to be called on certain input events.</p>
 <p>The <tt class="xref py py-class docutils literal"><span class="pre">Event</span></tt> object has some interesting attributes. You can access them
 like so:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pifacedigitalio</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">print_event_info</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Flag:     &quot;</span><span class="p">,</span> <span class="nb">bin</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">interrupt_flag</span><span class="p">))</span>
-<span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Capture:  &quot;</span><span class="p">,</span> <span class="nb">bin</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">interrupt_capture</span><span class="p">))</span>
-<span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Pin num:  &quot;</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">pin_num</span><span class="p">)</span>
-<span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Direction:&quot;</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">direction</span><span class="p">)</span>
-<span class="gp">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span> <span class="o">=</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">InputEventListener</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">IODIR_OFF</span><span class="p">,</span> <span class="n">print_event_info</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pifacedigital</span> <span class="o">=</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">PiFaceDigital</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span> <span class="o">=</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">InputEventListener</span><span class="p">(</span><span class="n">chip</span><span class="o">=</span><span class="n">pifacedigital</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pifacedigitalio</span><span class="o">.</span><span class="n">IODIR_RISING_EDGE</span><span class="p">,</span> <span class="k">print</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">listener</span><span class="o">.</span><span class="n">activate</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>This would print out the event informaion whenever you unpress switch 0:</p>
-<div class="highlight-python"><pre>Flag:      0b00000001
-Capture:   0b11111110
-Pin num:   0
-Direction: 1</pre>
+<div class="highlight-python"><pre>interrupt_flag:    0b1
+interrupt_capture: 0b11111111
+pin_num:           0
+direction:         1
+chip:              &lt;pifacedigitalio.core.PiFaceDigital object at 0xb682dab0&gt;
+timestamp:         1380893579.447889</pre>
 </div>
 </div>
 </div>
@@ -182,7 +147,6 @@ Direction: 1</pre>
   <ul>
 <li><a class="reference internal" href="#">Examples</a><ul>
 <li><a class="reference internal" href="#basic-usage">Basic usage</a></li>
-<li><a class="reference internal" href="#inheritance">Inheritance</a></li>
 <li><a class="reference internal" href="#interrupts">Interrupts</a></li>
 </ul>
 </li>
@@ -231,7 +195,7 @@ Direction: 1</pre>
         <li class="right" >
           <a href="installation.html" title="Installation"
              >previous</a> |</li>
-        <li><a href="index.html">PiFace Digital I/O 2.0.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Digital I/O 3.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
