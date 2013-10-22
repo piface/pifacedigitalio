@@ -127,13 +127,15 @@ class InputEventListener(pifacecommon.interrupts.PortEventListener):
 def init(init_board=True,
          bus=DEFAULT_SPI_BUS,
          chip_select=DEFAULT_SPI_CHIP_SELECT):
-    """Initialises all PiFace Digital boards.
+    """Initialises all PiFace Digital boards. Only required when using
+    :func:`digital_read` and :func:`digital_write`.
 
     :param init_board: Initialise each board (default: True)
     :type init_board: boolean
     :param bus: SPI bus /dev/spidev<bus>.<chipselect> (default: {bus})
     :type bus: int
-    :param chip_select: SPI bus /dev/spidev<bus>.<chipselect> (default: {chip})
+    :param chip_select: SPI chip select /dev/spidev<bus>.<chipselect>
+        (default: {chip})
     :type chip_select: int
     :raises: :class:`NoPiFaceDigitalDetectedError`
     """.format(bus=DEFAULT_SPI_BUS, chip=DEFAULT_SPI_CHIP_SELECT)
@@ -148,8 +150,17 @@ def init(init_board=True,
         raise failed_boards[0]
 
 
-def deinit():
-    """Stops interrupts on all boards."""
+def deinit(bus=DEFAULT_SPI_BUS,
+           chip_select=DEFAULT_SPI_CHIP_SELECT):
+    """Stops interrupts on all boards. Only required when using
+    :func:`digital_read` and :func:`digital_write`.
+
+    :param bus: SPI bus /dev/spidev<bus>.<chipselect> (default: {bus})
+    :type bus: int
+    :param chip_select: SPI chip select /dev/spidev<bus>.<chipselect>
+        (default: {chip})
+    :type chip_select: int
+    """
     num_boards = 4
     for hardware_addr in range(num_boards):
         try:
