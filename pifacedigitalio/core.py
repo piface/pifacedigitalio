@@ -157,7 +157,7 @@ def deinit():
                 hardware_addr, bus, chip_select, init_board=False)
         except NoPiFaceDigitalDetectedError:
             pass
-        finally:
+        else:
             pfd.disable_interrupts()
 
 
