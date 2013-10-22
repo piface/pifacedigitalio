@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+v3.0.1
+------
+- Fixed deinit bug (fixes GitHub pifacecommon issue #6).
+
 v3.0.0
 ------
 - Updated for compatibility with pifacecommon v4.0.0 (which uses the MCP23S17
