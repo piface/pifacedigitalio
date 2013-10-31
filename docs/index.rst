@@ -22,6 +22,7 @@ Contents:
    pifacedigital
    installation
    example
+   simplewebcontrol
    reference
 
 
