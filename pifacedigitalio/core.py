@@ -105,6 +105,11 @@ class PiFaceDigital(pifacecommon.mcp23s17.MCP23S17,
             self.gppub.value = 0xFF  # input pullups on
             self.enable_interrupts()
 
+    def deinit_board(self):
+        if self.gpintenb.value != 0x00:  # probably should be a function
+            self.disable_interrupts()
+        self.close_fd()
+
 
 class InputEventListener(pifacecommon.interrupts.PortEventListener):
     """Listens for events on the input port and calls the mapped callback
@@ -169,7 +174,7 @@ def deinit(bus=DEFAULT_SPI_BUS,
         except NoPiFaceDigitalDetectedError:
             pass
         else:
-            pfd.disable_interrupts()
+            pfd.deinit_board()
 
 
 # wrapper functions for backwards compatibility
@@ -190,8 +195,10 @@ def digital_read(pin_num, hardware_addr=0):
     :type hardware_addr: int
     :returns: int -- value of the pin
     """
-    return PiFaceDigital(hardware_addr=hardware_addr,
-                         init_board=False).input_pins[pin_num].value
+    pfd = PiFaceDigital(hardware_addr=hardware_addr, init_board=False)
+    value = pfd.input_pins[pin_num].value
+    pfd.deinit_board()
+    return value
 
 
 def digital_write(pin_num, value, hardware_addr=0):
@@ -211,8 +218,9 @@ def digital_write(pin_num, value, hardware_addr=0):
     :param hardware_addr: The board to read from (default: 0)
     :type hardware_addr: int
     """
-    PiFaceDigital(hardware_addr=hardware_addr,
-                  init_board=False).output_pins[pin_num].value = value
+    pfd = PiFaceDigital(hardware_addr=hardware_addr, init_board=False)
+    pfd.output_pins[pin_num].value = value
+    pfd.deinit_board()
 
 
 def digital_read_pullup(pin_num, hardware_addr=0):
@@ -234,8 +242,10 @@ def digital_read_pullup(pin_num, hardware_addr=0):
     :type hardware_addr: int
     :returns: int -- value of the pin
     """
-    return PiFaceDigital(hardware_addr=hardware_addr,
-                         init_board=False).gppub.bits[pin_num].value
+    pfd = PiFaceDigital(hardware_addr=hardware_addr, init_board=False)
+    value = pfd.gppub.bits[pin_num].value
+    pfd.deinit_board()
+    return value
 
 
 def digital_write_pullup(pin_num, value, hardware_addr=0):
@@ -257,5 +267,6 @@ def digital_write_pullup(pin_num, value, hardware_addr=0):
     :param hardware_addr: The board to read from (default: 0)
     :type hardware_addr: int
     """
-    PiFaceDigital(hardware_addr=hardware_addr,
-                  init_board=False).gppub.bits[pin_num].value = value
+    pfd = PiFaceDigital(hardware_addr=hardware_addr, init_board=False)
+    pfd.gppub.bits[pin_num].value = value
+    pfd.deinit_board()
