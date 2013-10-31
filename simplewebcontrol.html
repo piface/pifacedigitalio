@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Installation &mdash; PiFace Digital I/O 3.0.3 documentation</title>
+    <title>Simple Web Control &mdash; PiFace Digital I/O 3.0.3 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -26,8 +26,8 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="PiFace Digital I/O 3.0.3 documentation" href="index.html" />
-    <link rel="next" title="Examples" href="example.html" />
-    <link rel="prev" title="PiFace Digital" href="pifacedigital.html" /> 
+    <link rel="next" title="Reference" href="reference.html" />
+    <link rel="prev" title="Examples" href="example.html" /> 
   </head>
   <body>
     <div class="related">
@@ -40,10 +40,10 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="example.html" title="Examples"
+          <a href="reference.html" title="Reference"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="pifacedigital.html" title="PiFace Digital"
+          <a href="example.html" title="Examples"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">PiFace Digital I/O 3.0.3 documentation</a> &raquo;</li> 
       </ul>
@@ -54,17 +54,40 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>Make sure you are using the lastest version of Raspbian:</p>
-<div class="highlight-python"><pre>$ sudo apt-get update
-$ sudo apt-get upgrade</pre>
+  <div class="section" id="simple-web-control">
+<h1>Simple Web Control<a class="headerlink" href="#simple-web-control" title="Permalink to this headline">¶</a></h1>
+<p>You can control PiFace Digital from a web browser (or any network enabled
+device) using the <cite>simplewebcontrol.py</cite> tool.</p>
+<p>You can start the tool by running the following command on your Raspberry Pi:</p>
+<div class="highlight-python"><pre>$ python3 /usr/share/doc/python3-pifacedigitalio/examples/simplewebcontrol.py</pre>
 </div>
-<p>Install <tt class="docutils literal"><span class="pre">pifacedigitalio</span></tt> (for Python 3 and 2) with the following command:</p>
-<div class="highlight-python"><pre>$ sudo apt-get install python{,3}-pifacedigitalio</pre>
+<p>This will start a simple web server on port 8000 which you can access using
+a web browser.</p>
+<p>Type the following into the address bar of a browser on any machine in the
+local network:</p>
+<div class="highlight-python"><pre>http://192.168.1.3:8000</pre>
 </div>
-<p>Test by running the <tt class="docutils literal"><span class="pre">blink.py</span></tt> program:</p>
-<div class="highlight-python"><pre>$ python3 /usr/share/doc/python3-pifacedigitalio/examples/blink.py</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Relace <tt class="docutils literal"><span class="pre">192.168.1.3</span></tt> with the IP address of your Raspberry Pi.</p>
+</div>
+<p>It will return a <a class="reference external" href="http://www.json.org/">JSON object</a> describing the current
+state of PiFace Digital:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&#39;input_port&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;output_port&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+</pre></div>
+</div>
+<div class="section" id="controlling-output">
+<h2>Controlling Output<a class="headerlink" href="#controlling-output" title="Permalink to this headline">¶</a></h2>
+<p>You can set the output port using the URL:</p>
+<div class="highlight-python"><pre>http://192.168.1.61:8000/?output_port=0xaa</pre>
+</div>
+</div>
+<div class="section" id="changing-port">
+<h2>Changing Port<a class="headerlink" href="#changing-port" title="Permalink to this headline">¶</a></h2>
+<p>You can specify which port you would like <tt class="docutils literal"><span class="pre">simplewebcontrol.py</span></tt> to use by
+passing the port number as the first argument:</p>
+<div class="highlight-python"><pre>$ python3 /usr/share/doc/python3-pifacedigitalio/examples/simplewebcontrol.py 12345</pre>
+</div>
 </div>
 </div>
 
@@ -74,15 +97,24 @@ $ sudo apt-get upgrade</pre>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Simple Web Control</a><ul>
+<li><a class="reference internal" href="#controlling-output">Controlling Output</a></li>
+<li><a class="reference internal" href="#changing-port">Changing Port</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
-  <p class="topless"><a href="pifacedigital.html"
-                        title="previous chapter">PiFace Digital</a></p>
-  <h4>Next topic</h4>
   <p class="topless"><a href="example.html"
-                        title="next chapter">Examples</a></p>
+                        title="previous chapter">Examples</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="reference.html"
+                        title="next chapter">Reference</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="_sources/installation.txt"
+    <li><a href="_sources/simplewebcontrol.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
@@ -112,10 +144,10 @@ $ sudo apt-get upgrade</pre>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="example.html" title="Examples"
+          <a href="reference.html" title="Reference"
              >next</a> |</li>
         <li class="right" >
-          <a href="pifacedigital.html" title="PiFace Digital"
+          <a href="example.html" title="Examples"
              >previous</a> |</li>
         <li><a href="index.html">PiFace Digital I/O 3.0.3 documentation</a> &raquo;</li> 
       </ul>

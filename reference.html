@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Reference &mdash; PiFace Digital I/O 3.0.0 documentation</title>
+    <title>Reference &mdash; PiFace Digital I/O 3.0.3 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.0.0',
+        VERSION:     '3.0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,8 +25,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PiFace Digital I/O 3.0.0 documentation" href="index.html" />
-    <link rel="prev" title="Examples" href="example.html" /> 
+    <link rel="top" title="PiFace Digital I/O 3.0.3 documentation" href="index.html" />
+    <link rel="prev" title="Simple Web Control" href="simplewebcontrol.html" /> 
   </head>
   <body>
     <div class="related">
@@ -39,9 +39,9 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="example.html" title="Examples"
+          <a href="simplewebcontrol.html" title="Simple Web Control"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">PiFace Digital I/O 3.0.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Digital I/O 3.0.3 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -116,8 +116,22 @@ list containing <tt class="xref py py-class docutils literal"><span class="pre">
 
 <dl class="function">
 <dt id="pifacedigitalio.core.deinit">
-<tt class="descclassname">pifacedigitalio.core.</tt><tt class="descname">deinit</tt><big>(</big><big>)</big><a class="headerlink" href="#pifacedigitalio.core.deinit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Stops interrupts on all boards.</p>
+<tt class="descclassname">pifacedigitalio.core.</tt><tt class="descname">deinit</tt><big>(</big><em>bus=0</em>, <em>chip_select=0</em><big>)</big><a class="headerlink" href="#pifacedigitalio.core.deinit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops interrupts on all boards. Only required when using
+<a class="reference internal" href="#pifacedigitalio.core.digital_read" title="pifacedigitalio.core.digital_read"><tt class="xref py py-func docutils literal"><span class="pre">digital_read()</span></tt></a> and <a class="reference internal" href="#pifacedigitalio.core.digital_write" title="pifacedigitalio.core.digital_write"><tt class="xref py py-func docutils literal"><span class="pre">digital_write()</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>bus</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; SPI bus /dev/spidev&lt;bus&gt;.&lt;chipselect&gt; (default: {bus})</li>
+<li><strong>chip_select</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; SPI chip select /dev/spidev&lt;bus&gt;.&lt;chipselect&gt;
+(default: {chip})</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -255,8 +269,8 @@ PiFaceDigital object:</p>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="example.html"
-                        title="previous chapter">Examples</a></p>
+  <p class="topless"><a href="simplewebcontrol.html"
+                        title="previous chapter">Simple Web Control</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/reference.txt"
@@ -289,9 +303,9 @@ PiFaceDigital object:</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="example.html" title="Examples"
+          <a href="simplewebcontrol.html" title="Simple Web Control"
              >previous</a> |</li>
-        <li><a href="index.html">PiFace Digital I/O 3.0.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Digital I/O 3.0.3 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
