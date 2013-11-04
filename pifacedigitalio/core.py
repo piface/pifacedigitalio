@@ -5,8 +5,16 @@ import pifacecommon.interrupts
 DEFAULT_SPI_BUS = 0
 DEFAULT_SPI_CHIP_SELECT = 0
 
+MAX_BOARDS = 4
+# list of PiFace Digitals for digital_read/digital_write
+_pifacedigitals = [None] * MAX_BOARDS
+
 
 class NoPiFaceDigitalDetectedError(Exception):
+    pass
+
+
+class NoPiFaceDigitalError(Exception):
     pass
 
 
@@ -144,14 +152,17 @@ def init(init_board=True,
     :type chip_select: int
     :raises: :class:`NoPiFaceDigitalDetectedError`
     """.format(bus=DEFAULT_SPI_BUS, chip=DEFAULT_SPI_CHIP_SELECT)
-    num_boards = 4
     failed_boards = list()
-    for hardware_addr in range(num_boards):
+    for hardware_addr in range(MAX_BOARDS):
         try:
-            PiFaceDigital(hardware_addr, bus, chip_select, init_board)
+            global _pifacedigitals
+            _pifacedigitals[hardware_addr] = PiFaceDigital(hardware_addr,
+                                                           bus,
+                                                           chip_select,
+                                                           init_board)
         except NoPiFaceDigitalDetectedError as e:
             failed_boards.append(e)
-    if len(failed_boards) >= num_boards:
+    if len(failed_boards) >= MAX_BOARDS:
         raise failed_boards[0]
 
 
@@ -166,15 +177,12 @@ def deinit(bus=DEFAULT_SPI_BUS,
         (default: {chip})
     :type chip_select: int
     """
-    num_boards = 4
-    for hardware_addr in range(num_boards):
+    global _pifacedigitals
+    for pfd in _pifacedigitals:
         try:
-            pfd = PiFaceDigital(
-                hardware_addr, bus, chip_select, init_board=False)
-        except NoPiFaceDigitalDetectedError:
-            pass
-        else:
             pfd.deinit_board()
+        except AttributeError:
+            pass
 
 
 # wrapper functions for backwards compatibility
@@ -195,10 +203,7 @@ def digital_read(pin_num, hardware_addr=0):
     :type hardware_addr: int
     :returns: int -- value of the pin
     """
-    pfd = PiFaceDigital(hardware_addr=hardware_addr, init_board=False)
-    value = pfd.input_pins[pin_num].value
-    pfd.deinit_board()
-    return value
+    return _get_pifacedigital(hardware_addr).input_pins[pin_num].value
 
 
 def digital_write(pin_num, value, hardware_addr=0):
@@ -218,9 +223,7 @@ def digital_write(pin_num, value, hardware_addr=0):
     :param hardware_addr: The board to read from (default: 0)
     :type hardware_addr: int
     """
-    pfd = PiFaceDigital(hardware_addr=hardware_addr, init_board=False)
-    pfd.output_pins[pin_num].value = value
-    pfd.deinit_board()
+    _get_pifacedigital(hardware_addr).output_pins[pin_num].value = value
 
 
 def digital_read_pullup(pin_num, hardware_addr=0):
@@ -242,10 +245,7 @@ def digital_read_pullup(pin_num, hardware_addr=0):
     :type hardware_addr: int
     :returns: int -- value of the pin
     """
-    pfd = PiFaceDigital(hardware_addr=hardware_addr, init_board=False)
-    value = pfd.gppub.bits[pin_num].value
-    pfd.deinit_board()
-    return value
+    return _get_pifacedigital(hardware_addr).gppub.bits[pin_num].value
 
 
 def digital_write_pullup(pin_num, value, hardware_addr=0):
@@ -267,6 +267,13 @@ def digital_write_pullup(pin_num, value, hardware_addr=0):
     :param hardware_addr: The board to read from (default: 0)
     :type hardware_addr: int
     """
-    pfd = PiFaceDigital(hardware_addr=hardware_addr, init_board=False)
-    pfd.gppub.bits[pin_num].value = value
-    pfd.deinit_board()
+    _get_pifacedigital(hardware_addr).gppub.bits[pin_num].value = value
+
+
+def _get_pifacedigital(hardware_addr):
+    global _pifacedigitals
+    if _pifacedigitals[hardware_addr] is None:
+        raise NoPiFaceDigitalError("There is no PiFace Digital with "
+                                   "hardware_addr {}".format(hardware_addr))
+    else:
+        return _pifacedigitals[hardware_addr]
