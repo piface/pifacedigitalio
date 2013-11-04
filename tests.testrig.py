@@ -34,8 +34,8 @@ RELAY_RANGE = 2
 
 
 class TestPiFaceDigitalOutput(unittest.TestCase):
-    # def setUp(self):
-    #     pifacedigitalio.init()
+    def setUp(self):
+        pifacedigitalio.init()  # for digital write
 
     def test_leds(self):
         global pifacedigitals
@@ -100,8 +100,8 @@ class TestPiFaceDigitalOutput(unittest.TestCase):
                 pifacedigitalio.digital_write(pin, 0, pfd.hardware_addr)
                 self.assertEqual(pfd.output_port.bits[pin].value, 0)
 
-    # def tearDown(self):
-    #     pifacedigitalio.deinit()
+    def tearDown(self):
+        pifacedigitalio.deinit()  # for digital write
 
 
 class TestPiFaceDigitalInput(unittest.TestCase):
@@ -115,8 +115,8 @@ class TestPiFaceDigitalInput(unittest.TestCase):
         input 6 - output 1
         input 7 - output 0
     """
-    # def setUp(self):
-    #     pifacedigitalio.init()
+    def setUp(self):
+        pifacedigitalio.init()  # for digital read
 
     def test_switches(self):
         global pifacedigitals
@@ -166,8 +166,8 @@ class TestPiFaceDigitalInput(unittest.TestCase):
             self.assertEqual(pfd.input_port.value, 0x55)
             pfd.output_port.value = 0
 
-    # def tearDown(self):
-    #     pifacedigitalio.deinit()
+    def tearDown(self):
+        pifacedigitalio.deinit()  # for digital read
 
 
 class TestInterrupts(unittest.TestCase):
@@ -222,6 +222,19 @@ def simulate_button_press(pin_num=0, hardware_addr=0, hold_time=0.5):
     pfd.output_pins[pin_num].turn_on()
     time.sleep(hold_time)
     pfd.output_pins[pin_num].turn_off()
+
+
+class TestBigDigitalReadWrite(unittest.TestCase):
+    def setUp(self):
+        pifacedigitalio.init()
+
+    def test_big_digital_read_write(self):
+        pin = 0
+        for i in range(1000):
+            for test_value in (1, 0):
+                pifacedigitalio.digital_write(pin, test_value)
+                v = pifacedigitalio.digital_read(7 - pin)
+                self.assertEqual(test_value, v)
 
 
 def remove_arg(shortarg, longarg):
