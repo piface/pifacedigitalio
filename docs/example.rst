@@ -34,6 +34,8 @@ Basic usage
     >>> bin(pfd.gpiob.value)  # fourth switch pressed (physical input port)
     '0b11110111'
 
+    >>> pfd.deinit_board()  # disables interrupts and closes the file
+
 .. note: Inputs are active low on GPIO Port B. This is hidden in software
    unless you inspect the GPIOB register.
 
@@ -47,6 +49,7 @@ Here are some functions you might want to use if objects aren't your thing::
     0
     >>> p.digital_read(2, 3)     # reads pin2 (on board3)
     1
+    >>> p.deinit()
 
 .. note: These are just wrappers around the PiFaceDigital object.
 
