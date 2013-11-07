@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Examples &mdash; PiFace Digital I/O 3.0.3 documentation</title>
+    <title>Examples &mdash; PiFace Digital I/O 3.0.5 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '3.0.3',
+        VERSION:     '3.0.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="PiFace Digital I/O 3.0.3 documentation" href="index.html" />
+    <link rel="top" title="PiFace Digital I/O 3.0.5 documentation" href="index.html" />
     <link rel="next" title="Simple Web Control" href="simplewebcontrol.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
   </head>
@@ -45,7 +45,7 @@
         <li class="right" >
           <a href="installation.html" title="Installation"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">PiFace Digital I/O 3.0.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Digital I/O 3.0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -84,6 +84,8 @@
 
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">bin</span><span class="p">(</span><span class="n">pfd</span><span class="o">.</span><span class="n">gpiob</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c"># fourth switch pressed (physical input port)</span>
 <span class="go">&#39;0b11110111&#39;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pfd</span><span class="o">.</span><span class="n">deinit_board</span><span class="p">()</span>  <span class="c"># disables interrupts and closes the file</span>
 </pre></div>
 </div>
 <p>Here are some functions you might want to use if objects aren&#8217;t your thing:</p>
@@ -95,6 +97,7 @@
 <span class="go">0</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">digital_read</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>     <span class="c"># reads pin2 (on board3)</span>
 <span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p</span><span class="o">.</span><span class="n">deinit</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -195,7 +198,7 @@ timestamp:         1380893579.447889</pre>
         <li class="right" >
           <a href="installation.html" title="Installation"
              >previous</a> |</li>
-        <li><a href="index.html">PiFace Digital I/O 3.0.3 documentation</a> &raquo;</li> 
+        <li><a href="index.html">PiFace Digital I/O 3.0.5 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
