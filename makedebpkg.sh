@@ -1,9 +1,5 @@
 #!/bin/bash
-cd docs/
-make html
-cd -
-
-python setup.py --command-packages=stdeb.command sdist_dsc
+python2 setup.py --command-packages=stdeb.command sdist_dsc
 
 version=$(cat pifacedigitalio/version.py | sed 's/.*\([0-9]\.[0-9]\.[0-9]\).*/\1/')
 cd deb_dist/pifacedigitalio-$version/
