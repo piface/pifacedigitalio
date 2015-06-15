@@ -156,7 +156,7 @@ class TestPiFaceDigitalInput(unittest.TestCase):
             for a, b in ((0, 2), (1, 3)):
                 input(
                     "Hold switch {a} and {b} on board {board} and then "
-                    "press enter.".format(a=a, b=b, board=pfd.board_num))
+                    "press enter.".format(a=a, b=b, board=pfd.hardware_addr))
                 self.assertEqual(pfd.switches[a].value, 1)
                 self.assertEqual(pfd.switches[a].value, 1)
 
@@ -195,8 +195,8 @@ class TestInterrupts(unittest.TestCase):
 
         global pifacedigitals
         for p in pifacedigitals:
-            self.barriers[p.board_num] = threading.Barrier(2, timeout=10)
-            listener = pifacedigitalio.InputEventListener(p.board_num)
+            self.barriers[p.hardware_addr] = threading.Barrier(2, timeout=10)
+            listener = pifacedigitalio.InputEventListener(p.hardware_addr)
             listener.register(0, self.direction, self.interrupts_test_helper)
             self.listeners.append(listener)
 
@@ -205,20 +205,20 @@ class TestInterrupts(unittest.TestCase):
             listener.activate()
         print("Press switch 0 on every board.")
         barriers = self.barriers.items() if PY3 else self.barriers.iteritems()
-        for board_num, barrier in barriers:
+        for hardware_addr, barrier in barriers:
             barrier.wait()
         global pifacedigitals
         for p in pifacedigitals:
-            self.assertTrue(p.board_num in self.board_switch_pressed)
+            self.assertTrue(p.hardware_addr in self.board_switch_pressed)
 
     def interrupts_test_helper(self, event):
         self.assertEqual(event.interrupt_flag, 0x1)
         self.assertEqual(event.interrupt_capture, 0xfe)
         self.assertEqual(event.pin_num, 0)
         self.assertEqual(event.direction, self.direction)
-        self.board_switch_pressed.append(event.board_num)
-        print("Switch 0 on board {} pressed.".format(event.board_num))
-        self.barriers[event.board_num].wait()
+        self.board_switch_pressed.append(event.hardware_addr)
+        print("Switch 0 on board {} pressed.".format(event.hardware_addr))
+        self.barriers[event.hardware_addr].wait()
 
     def tearDown(self):
         for listener in self.listeners:
@@ -266,7 +266,7 @@ if __name__ == "__main__":
         pifacedigitals.append(pifacedigitalio.PiFaceDigital(3))
         remove_arg("-b3", "--board3")
 
-    boards_string = ", ".join([str(pfd.board_num) for pfd in pifacedigitals])
+    boards_string = ", ".join([str(pfd.hardware_addr) for pfd in pifacedigitals])
     print("Testing boards:", boards_string)
 
     unittest.main()
