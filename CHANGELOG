@@ -1,6 +1,14 @@
 Change Log
 ==========
 
+v3.1.0
+------
+- Added daemon flag for InputEventListener.
+
+v3.0.5
+------
+- Added PiFace Digital Emulator installation instructions to the docs.
+
 v3.0.4
 ------
 - Added deinit_board method to PiFace Digital.

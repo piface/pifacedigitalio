@@ -6,7 +6,7 @@ The PiFace Digital Input/Output module ([PyPI](https://pypi.python.org/pypi/pifa
 Documentation
 =============
 
-[http://piface.github.io/pifacedigitalio/](http://piface.github.io/pifacedigitalio/)
+[http://pifacedigitalio.readthedocs.org/](http://pifacedigitalio.readthedocs.org/)
 
 You can also find the documentation and some examples installed at:
 
