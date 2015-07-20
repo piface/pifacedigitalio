@@ -82,7 +82,7 @@ like so::
     >>> listener.register(0, pifacedigitalio.IODIR_RISING_EDGE, print)
     >>> listener.activate()
 
-This would print out the event informaion whenever you unpress switch 0::
+This would print out the event information whenever you un-press switch 0::
 
     interrupt_flag:    0b1
     interrupt_capture: 0b11111111
@@ -90,3 +90,62 @@ This would print out the event informaion whenever you unpress switch 0::
     direction:         1
     chip:              <pifacedigitalio.core.PiFaceDigital object at 0xb682dab0>
     timestamp:         1380893579.447889
+
+
+Exit from interrupt
+-------------------
+In some cases you may want to deactivate the listener and exit your program
+on an interrupt (press switch to exit, for example). Since each method
+registered to an interrupt is run in a new thread and you can only
+deactivate a listener from within the same thread that activated it, you
+cannot deactivate a listener from a method registered to an interrupt. That is,
+you cannot do the following because the ``deactivate_listener_and_exit()``
+method is started in a different thread::
+
+    import sys
+    import pifacedigitalio
+
+
+    listener = None
+
+
+    def deactivate_listener_and_exit(event):
+        global listener
+        listener.deactivate()
+        sys.exit()
+
+
+    pifacedigital = pifacedigitalio.PiFaceDigital()
+    listener = pifacedigitalio.InputEventListener(chip=pifacedigital)
+    listener.register(0,
+                      pifacedigitalio.IODIR_FALLING_EDGE,
+                      deactivate_listener_and_exit)
+    listener.activate()
+
+One solution is to use a `Barrier <https://docs.python.org/3/library/threading.html#barrier-objects>`_ synchronisation object. Each thread calls ``wait()`` on the barrier and
+then blocks. After the final thread calls ``wait()`` all threads are unblocked.
+Here is an example program which successfully exits on an interrupt::
+
+
+    import sys
+    import threading
+    import pifacedigitalio
+
+
+    exit_barrier = threading.Barrier(2)
+
+
+    def deactivate_listener_and_exit(event):
+        global exit_barrier
+        exit_barrier.wait()
+
+
+    pifacedigital = pifacedigitalio.PiFaceDigital()
+    listener = pifacedigitalio.InputEventListener(chip=pifacedigital)
+    listener.register(0,
+                      pifacedigitalio.IODIR_FALLING_EDGE,
+                      deactivate_listener_and_exit)
+    listener.activate()
+    exit_barrier.wait() # program will wait here until exit_barrier releases
+    listener.deactivate()
+    sys.exit()
