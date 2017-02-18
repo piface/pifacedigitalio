@@ -49,7 +49,8 @@ class PiFaceDigital(pifacecommon.mcp23s17.MCP23S17,
                  hardware_addr=0,
                  bus=DEFAULT_SPI_BUS,
                  chip_select=DEFAULT_SPI_CHIP_SELECT,
-                 init_board=True):
+                 init_board=True,
+                 output_pins_off=True):
         super(PiFaceDigital, self).__init__(hardware_addr, bus, chip_select)
 
         self.input_pins = [pifacecommon.mcp23s17.MCP23S17RegisterBitNeg(
@@ -62,6 +63,8 @@ class PiFaceDigital(pifacecommon.mcp23s17.MCP23S17,
         self.output_pins = [pifacecommon.mcp23s17.MCP23S17RegisterBit(
             i, pifacecommon.mcp23s17.GPIOA, self)
             for i in range(8)]
+
+        self.output_pins_off = output_pins_off
 
         self.output_port = pifacecommon.mcp23s17.MCP23S17Register(
             pifacecommon.mcp23s17.GPIOA, self)
@@ -107,7 +110,8 @@ class PiFaceDigital(pifacecommon.mcp23s17.MCP23S17,
                     h=self.hardware_addr, b=self.bus, c=self.chip_select))
         else:
             # finish configuring the board
-            self.gpioa.value = 0
+            if self.output_pins_off:
+                self.gpioa.value = 0
             self.iodira.value = 0  # GPIOA as outputs
             self.iodirb.value = 0xFF  # GPIOB as inputs
             self.gppub.value = 0xFF  # input pullups on
@@ -146,7 +150,8 @@ class InputEventListener(pifacecommon.interrupts.PortEventListener):
 
 def init(init_board=True,
          bus=DEFAULT_SPI_BUS,
-         chip_select=DEFAULT_SPI_CHIP_SELECT):
+         chip_select=DEFAULT_SPI_CHIP_SELECT,
+         output_pins_off=True):
     """Initialises all PiFace Digital boards. Only required when using
     :func:`digital_read` and :func:`digital_write`.
 
@@ -166,7 +171,8 @@ def init(init_board=True,
             _pifacedigitals[hardware_addr] = PiFaceDigital(hardware_addr,
                                                            bus,
                                                            chip_select,
-                                                           init_board)
+                                                           init_board,
+                                                           output_pins_off)
         except NoPiFaceDigitalDetectedError as e:
             failed_boards.append(e)
     if len(failed_boards) >= MAX_BOARDS:
