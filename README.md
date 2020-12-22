@@ -20,7 +20,7 @@ Make sure you are using the lastest version of Raspbian:
     $ sudo apt-get update
     $ sudo apt-get upgrade
 
-Install `pifacedigitalio` with the following commands:
+Install `pifacedigitalio` with the following command:
 
     Python 3:
     $ sudo pip3 install pifacedigitalio
