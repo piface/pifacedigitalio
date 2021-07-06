@@ -12,6 +12,12 @@ Make sure you are using the lastest version of Raspbian:
     $ sudo apt-get update
     $ sudo apt-get upgrade
 
+Enable SPI (e.g. use raspi-config)
+
+    $ sudo raspi-config
+    
+    select `Interface Options` > `SPI` > `Yes` and then select `Finish`
+
 If you need to install pip3
 
     $ sudo apt install python3-pip
