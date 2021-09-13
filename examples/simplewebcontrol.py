@@ -47,14 +47,25 @@ class PiFaceWebHandler(http.server.BaseHTTPRequestHandler):
             new_output_value = query_components["output_port"][0]
             output_value = self.set_output_port(new_output_value, output_value)
 
+        # create the JSON content
+        content = bytes(JSON_FORMAT.format(
+            input=input_value,
+            output=output_value,
+        ), 'UTF-8')
+
         # reply with JSON
         self.send_response(200)
         self.send_header("Content-type", "application/json")
+        self.send_header("Content-length", str(len(content)))
         self.end_headers()
-        self.wfile.write(bytes(JSON_FORMAT.format(
-            input=input_value,
-            output=output_value,
-        ), 'UTF-8'))
+        self.wfile.write(content)
+
+    # Uncomment this function if you want to access this PiFace server
+    # from a web app (Web app is loaded from another server, not from this PiFace server).
+    # Normally this is not allowed. Uncomment this to allow this scenario.
+    #def end_headers (self):
+    #    self.send_header('Access-Control-Allow-Origin', '*')
+    #    http.server.BaseHTTPRequestHandler.end_headers(self)
 
     def set_output_port(self, new_value, old_value=0):
         """Sets the output port value to new_value, defaults to old_value."""
